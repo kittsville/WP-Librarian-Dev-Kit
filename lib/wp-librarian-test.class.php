@@ -48,6 +48,9 @@ class WP_LIBRARIAN_TEST {
 	 * @param	WP_LIB_AJAX_PAGE	$ajax_page	Instance of plugin AJAX page creating class
 	 */
 	public function addTestDataPage($url, WP_LIB_AJAX_PAGE $ajax_page) {
+		if ($ajax_page !== 'test-data')
+			return;
+		
 		$ajax_page->sendPage( 'Test Data', 'Test Data', array());
 	}
 }
