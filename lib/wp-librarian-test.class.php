@@ -22,6 +22,7 @@ class WP_LIBRARIAN_TEST {
 	
 	/**
 	 * Adds a button to the library Dashboard for lib admins to visit the test data page
+	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_home_buttons
 	 * @param	array	$buttons	Dashboard buttons
 	 * @return	array				Dash buttons with Test Data button added
 	 */
