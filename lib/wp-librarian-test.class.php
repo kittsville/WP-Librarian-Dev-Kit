@@ -15,9 +15,12 @@ class WP_LIBRARIAN_TEST {
 	 * Registers WP-Librarian hooks
 	 */
 	function __construct(){
-		add_filter('wp_lib_dash_home_buttons',			array($this,	'addTestDataButton'),	10, 2);
+		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),	10, 2);
 		
-		add_action('wp_lib_dash_page_load_test-data',	array($this,	'addTestDataPage'),		10, 2);
+		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),		10, 2);
+		
+		add_action('wp_lib_dash_action_gen-test-data',		array($this,	'genTestData'),			10, 1);
+		add_action('wp_lib_dash_action_delete-test-data',	array($this,	'deleteTestData'),		10,	1);
 	}
 	
 	/**
@@ -96,5 +99,25 @@ class WP_LIBRARIAN_TEST {
 		);
 		
 		$ajax_page->sendPage( 'Test Data Management Panel', 'Test Data', $page);
+	}
+	
+	/**
+	 * Parses fixtures data and creates items, members, loans and fines with them
+	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_action_
+	 * @param	WP_LIB_AJAX_ACTION	$ajax_action	Instance of WP-Librarian class for handling Dash actions
+	 */
+	public function genTestData(WP_LIB_AJAX_ACTION $ajax_action) {
+		$ajax_action->addNotification('Placeholder for creating test data');
+		$ajax_action->endAction(false);
+	}
+	
+	/**
+	 * Deletes fixture data, identified as all posts with the post meta 'wp_lib_test_data'
+	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_action_
+	 * @param	WP_LIB_AJAX_ACTION	$ajax_action	Instance of WP-Librarian class for handling Dash actions
+	 */
+	public function deleteTestData(WP_LIB_AJAX_ACTION $ajax_action) {
+		$ajax_action->addNotification('Placeholder for deleting test data');
+		$ajax_action->endAction(false);
 	}
 }
