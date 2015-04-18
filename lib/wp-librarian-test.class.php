@@ -16,6 +16,8 @@ class WP_LIBRARIAN_TEST {
 	 */
 	function __construct(){
 		add_filter('wp_lib_dash_home_buttons',		array($this,	'addTestDataButton'),	10, 2);
+		
+		add_action('wp_lib_hook_page',				array($this,	'addTestDataPage'),		10, 2);
 	}
 	
 	/**
@@ -36,5 +38,15 @@ class WP_LIBRARIAN_TEST {
 		);
 		
 		return $buttons;
+	}
+	
+	/**
+	 * Adds a Dash page to view/create/delete test data
+	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_hook_page
+	 * @param	string				$url		Name of requested dash page, e.g. view-items
+	 * @param	WP_LIB_AJAX_PAGE	$ajax_page	Instance of plugin AJAX page creating class
+	 */
+	public function addTestDataPage($url, WP_LIB_AJAX_PAGE $ajax_page) {
+		$ajax_page->sendPage( 'Test Data', 'Test Data', array());
 	}
 }
