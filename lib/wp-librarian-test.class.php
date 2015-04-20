@@ -12,15 +12,57 @@ defined('ABSPATH') OR die('No');
  */
 class WP_LIBRARIAN_TEST {
 	/**
+	 * Path to plugin folder, without trailing slash
+	 * @var string
+	 */
+	public $plugin_path;
+	
+	/**
+	 * Public URL to plugin folder, without trailing slash
+	 * @var string
+	 */
+	public $plugin_url;
+	
+	/**
+	 * Sets up plugin
+	 * @todo Consider merging some required files into this class
+	 */
+	public function __construct() {
+		$this->plugin_path	= dirname(dirname(__FILE__));
+		$this->plugin_url	= plugins_url('', dirname(__FILE__));
+		
+		// Registers functions to WordPress hooks
+		$this->registerHooks();
+	}
+	
+	/**
 	 * Registers WP-Librarian hooks
 	 */
-	function __construct(){
+	private function registerHooks(){
 		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),	10, 2);
 		
 		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),		10, 2);
 		
 		add_action('wp_lib_dash_action_gen-test-data',		array($this,	'genTestData'),			10, 1);
 		add_action('wp_lib_dash_action_delete-test-data',	array($this,	'deleteTestData'),		10,	1);
+	}
+	
+	/**
+	 * Given the name of a CSS file, returns its full URL
+	 * @param	string	$name	File name e.g. 'front-end-core'
+	 * @return	string			Full file URL e.g. '.../styles/front-end-core.css'
+	 */
+	public function getStyleUrl($name) {
+		return $this->plugin_url . '/styles/' . $name . $suffix . '.css';
+	}
+	
+	/**
+	 * Given the name of a JS file, returns its full URL
+	 * @param	string	$name	File name e.g. 'admin-dashboard'
+	 * @return	string			Full file URL e.g. '.../scripts/admin.js'
+	 */
+	public function getScriptUrl($name) {
+		return $this->plugin_url . '/scripts/' . $name . $suffix . '.js';
 	}
 	
 	/**
