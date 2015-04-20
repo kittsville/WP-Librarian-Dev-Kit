@@ -39,6 +39,11 @@ class WP_LIBRARIAN_TEST {
 	 * Registers WP-Librarian hooks
 	 */
 	private function registerHooks(){
+		add_action('wp_lib_plugin_settings',				array($this,	'addSettings'));
+		add_filter('wp_lib_settings_tabs',					array($this,	'addSettingsTab'),		10, 1);
+		
+		add_action('wp_lib_register_settings',				array($this,	'registerSettingsSection'));
+		
 		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),	10, 2);
 		
 		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),		10, 2);
@@ -63,6 +68,58 @@ class WP_LIBRARIAN_TEST {
 	 */
 	public function getScriptUrl($name) {
 		return $this->plugin_url . '/scripts/' . $name . $suffix . '.js';
+	}
+	
+	/**
+	 * Adds settings to WP-Librarian's valid settings array, allowing for use of WP-Librarian's settings class
+	 * @param	Array	$settings	WP-Librarian's valid settings
+	 * @return	Array				WP-Librarian's modified settings
+	 */
+	public function addSettings(array $settings) {
+		$settings['wp_libfix_api_key'] = array('');
+		
+		return $settings;
+	}
+	
+	/**
+	 * Adds settings section as a new tab to WP-Librarian's settings page
+	 * @param	Array	$settings_tabs	Current WP-Lib settings page tabs
+	 * @return	Array					Modified WP-Lib settings page tabs
+	 */
+	public function addSettingsTab(Array $settings_tabs) {
+		$settings_tabs['test-data'] = array('wp_libfix_settings', 'Test Data');
+		
+		return $settings_tabs;
+	}
+	
+	/**
+	 * Registers plugin's settings section using WP-Librarian's settings class
+	 */
+	public function registerSettingsSection() {
+		WP_LIB_SETTINGS_SECTION::registerSection(array(
+			'name'		=> 'wp_libfix_settings',
+			'title'		=> 'Test Data Settings',
+			'page'		=> 'wp_libfix_settings-options',
+			'settings'	=> array(
+				array(
+					'name'			=> 'wp_libfix_api_key',
+					'sanitize'		=>
+						function($raw) {
+							// Ensures loan length is an integer between 1-100 (inclusive)
+							return array(ereg_replace('[^A-Za-z0-9]', '', $raw[0]));
+						},
+					'fields'		=> array(
+						array(
+							'name'			=> 'ISBNdb API Key',
+							'field_type'	=> 'textInput',
+							'args'			=> array(
+								'alt'		=> 'A valid API key for the <a href="http://isbndb.com/api/v2/docs">ISBNdb API V2</a>'
+							)
+						)
+					)
+				)
+			)
+		));
 	}
 	
 	/**
