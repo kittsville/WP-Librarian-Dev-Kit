@@ -149,6 +149,10 @@ class WP_LIBRARIAN_TEST {
 	 * @param	WP_LIB_AJAX_PAGE	$ajax_page	Instance of plugin AJAX page creating class
 	 */
 	public function addTestDataPage(WP_LIB_AJAX_PAGE $ajax_page) {
+		// Stops non-library admins viewing page
+		if (!wp_lib_is_library_admin())
+			return;
+		
 		$page = array(
 			array(
 				'type'		=> 'paras',
