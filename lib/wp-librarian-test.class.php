@@ -40,16 +40,20 @@ class WP_LIBRARIAN_TEST {
 	 */
 	private function registerHooks(){
 		add_action('wp_lib_plugin_settings',				array($this,	'addSettings'));
-		add_filter('wp_lib_settings_tabs',					array($this,	'addSettingsTab'),		10, 1);
+		add_filter('wp_lib_settings_tabs',					array($this,	'addSettingsTab'),			10, 1);
 		
 		add_action('wp_lib_register_settings',				array($this,	'registerSettingsSection'));
 		
-		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),	10, 2);
+		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),		10, 2);
 		
-		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),		10, 2);
+		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),			10, 2);
 		
-		add_action('wp_lib_dash_action_gen-test-data',		array($this,	'genTestData'),			10, 1);
-		add_action('wp_lib_dash_action_delete-test-data',	array($this,	'deleteTestData'),		10,	1);
+		add_action('wp_lib_dash_action_gen-test-data',		array($this,	'genTestData'),				10, 1);
+		add_action('wp_lib_dash_action_delete-test-data',	array($this,	'deleteTestData'),			10,	1);
+		
+		add_action('wp_lib_settings_page',					array($this,	'enqueueSettingsScripts'),	10, 1);
+		
+		add_action('admin_enqueue_scripts',					array($this,	'registerAdminScripts'),	10, 1);
 	}
 	
 	/**
@@ -58,7 +62,7 @@ class WP_LIBRARIAN_TEST {
 	 * @return	string			Full file URL e.g. '.../styles/front-end-core.css'
 	 */
 	public function getStyleUrl($name) {
-		return $this->plugin_url . '/styles/' . $name . $suffix . '.css';
+		return $this->plugin_url . '/styles/' . $name . '.css';
 	}
 	
 	/**
@@ -67,7 +71,7 @@ class WP_LIBRARIAN_TEST {
 	 * @return	string			Full file URL e.g. '.../scripts/admin.js'
 	 */
 	public function getScriptUrl($name) {
-		return $this->plugin_url . '/scripts/' . $name . $suffix . '.js';
+		return $this->plugin_url . '/scripts/' . $name . '.js';
 	}
 	
 	/**
@@ -222,5 +226,27 @@ class WP_LIBRARIAN_TEST {
 	public function deleteTestData(WP_LIB_AJAX_ACTION $ajax_action) {
 		$ajax_action->addNotification('Placeholder for deleting test data');
 		$ajax_action->endAction(false);
+	}
+	
+	/**
+	 * Registers scripts for Dashboard and settings tab
+	 * @param string $hook	The URL prefix of the current admin page
+	 * @see					http://codex.wordpress.org/Plugin_API/Action_Reference/admin_enqueue_scripts
+	 */
+	public function registerAdminScripts($hook) {
+		wp_register_script('wp_libfix_setings', $this->getScriptUrl('settings'),  array('jquery'), '0.1');
+		
+		wp_localize_script('wp_libfix_setings', 'wp_libfix_vars', array(
+			'apiKey'	=> get_option('wp_libfix_api_key', array(''))[0]
+		));
+	}
+	
+	/**
+	 * Loads scripts on the plugin's settings page tab
+	 * @param string $tab Current settings page tab name
+	 */
+	public function enqueueSettingsScripts($tab) {
+		if ($tab === 'test-data')
+			wp_enqueue_script('wp_libfix_setings');
 	}
 }
