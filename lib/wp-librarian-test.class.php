@@ -39,7 +39,7 @@ class WP_LIBRARIAN_TEST {
 	 * Registers WP-Librarian hooks
 	 */
 	private function registerHooks(){
-		add_action('wp_lib_plugin_settings',				array($this,	'addSettings'));
+		add_filter('wp_lib_plugin_settings',				array($this,	'addSettings'));
 		add_filter('wp_lib_settings_tabs',					array($this,	'addSettingsTab'),			10, 1);
 		
 		add_action('wp_lib_register_settings',				array($this,	'registerSettingsSection'));
