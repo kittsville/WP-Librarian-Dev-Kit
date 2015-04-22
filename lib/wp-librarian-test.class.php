@@ -103,7 +103,6 @@ class WP_LIBRARIAN_TEST {
 		WP_LIB_SETTINGS_SECTION::registerSection(array(
 			'name'		=> 'wp_libfix_settings',
 			'title'		=> 'Test Data Settings',
-			'page'		=> 'wp_libfix_settings-options',
 			'settings'	=> array(
 				array(
 					'name'			=> 'wp_libfix_api_key',
