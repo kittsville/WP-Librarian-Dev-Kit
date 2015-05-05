@@ -26,4 +26,4 @@
 
 require_once (dirname( __FILE__ ) . '/lib/wp-librarian-test.class.php');
 
-$plugin = new WP_LIBRARIAN_TEST;
+new WP_LIBRARIAN_TEST;
