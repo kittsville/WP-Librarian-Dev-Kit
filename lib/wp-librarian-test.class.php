@@ -1,9 +1,4 @@
 <?php
-/**
- * WP-LIBRARIAN TEST
- * Processes YAML Data and creates database entries
- */
-
 // No direct loading
 defined('ABSPATH') OR die('No');
 
