@@ -5,7 +5,7 @@ defined('ABSPATH') OR die('No');
 /**
  * Hooks onto WP_Librarian filters to provide the means to create test data
  */
-class WP_LIBRARIAN_TEST {
+class WP_LIBRARIAN_FIXTURES {
 	/**
 	 * Path to plugin folder, without trailing slash
 	 * @var string

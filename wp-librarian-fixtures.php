@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: WP-Librarian Test Data Generator
- * Description: Generates data for WP-Librarian to be tested on
+ * Plugin Name: WP-Librarian Fixtures Creator
+ * Description: Generates items/members/loans/fines to test WP-Librarian
  * Version: 0.0.1
  * For WP-Librarian: Alpha v3 (Badger Claw)
  * Author: Kit Maywood
@@ -24,6 +24,6 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-require_once (dirname( __FILE__ ) . '/lib/wp-librarian-test.class.php');
+require_once (dirname( __FILE__ ) . '/lib/wp-librarian-fixtures.class.php');
 
-new WP_LIBRARIAN_TEST;
+new WP_LIBRARIAN_FIXTURES;
