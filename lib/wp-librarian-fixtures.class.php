@@ -26,29 +26,39 @@ class WP_LIBRARIAN_FIXTURES {
 		$this->plugin_path	= dirname(dirname(__FILE__));
 		$this->plugin_url	= plugins_url('', dirname(__FILE__));
 		
-		// Registers functions to WordPress hooks
+		// Registers callbacks to WordPress/WP-Librarian hooks
 		$this->registerHooks();
+		
+		if (defined('DOING_AJAX') && DOING_AJAX) {
+			$this->loadClass('ajax');
+			new LIB_FIX_AJAX($this);
+		}
+		
+		require_once($this->plugin_path . '/wp-librarian-fixtures-helpers.php');
 	}
 	
 	/**
 	 * Registers WP-Librarian hooks
 	 */
 	private function registerHooks(){
+		add_filter('wp_lib_error_codes',					array($this,	'registerErrors'));
+		
 		add_filter('wp_lib_plugin_settings',				array($this,	'addSettings'));
 		add_filter('wp_lib_settings_tabs',					array($this,	'addSettingsTab'),			10, 1);
 		
 		add_action('wp_lib_register_settings',				array($this,	'registerSettingsSection'));
 		
-		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),		10, 2);
-		
-		add_action('wp_lib_dash_page_load_test-data',		array($this,	'addTestDataPage'),			10, 2);
-		
-		add_action('wp_lib_dash_action_gen-test-data',		array($this,	'genTestData'),				10, 1);
-		add_action('wp_lib_dash_action_delete-test-data',	array($this,	'deleteTestData'),			10,	1);
-		
 		add_action('wp_lib_settings_page',					array($this,	'enqueueSettingsScripts'),	10, 1);
 		
 		add_action('admin_enqueue_scripts',					array($this,	'registerAdminScripts'),	10, 1);
+	}
+	
+	/**
+	 * Loads library class from /lib directory
+	 * @param	string	$helper	Name of library to be loaded, excluding .class.php
+	 */
+	public function loadClass($library) {
+		require_once($this->plugin_path . '/lib/' . $library . '.class.php');
 	}
 	
 	/**
@@ -67,6 +77,23 @@ class WP_LIBRARIAN_FIXTURES {
 	 */
 	public function getScriptUrl($name) {
 		return $this->plugin_url . '/scripts/' . $name . '.js';
+	}
+	
+	/**
+	 * Adds WP-Librarian-Fixtures error codes to WP-Librarian's list of error codes
+	 * @param	array	$errors	WP-Librarian's error codes and their descriptions
+	 * @return	array			WP-Librarian's/WP-Lib-Fixtures' error codes and their descriptions
+	 */
+	public function registerErrors($errors) {
+		return $errors + array(
+			'1001' => 'Unable to resume fixture generation',
+			'1002' => 'Unable to open members fixtures file',
+			'1003' => 'Unable to read members fixtures files',
+			'1004' => 'Not enough fixture members to satisfy request',
+			'1005' => "Invalid ISBNDB API Key '\p'",
+			'1006' => 'ISBNDB API returned an error',
+			'1007' => 'Attempted to resume session using invalid token'
+		);
 	}
 	
 	/**
@@ -103,8 +130,18 @@ class WP_LIBRARIAN_FIXTURES {
 					'name'			=> 'wp_libfix_api_key',
 					'sanitize'		=>
 						function($raw) {
-							// Ensures loan length is an integer between 1-100 (inclusive)
-							return array(ereg_replace('[^A-Za-z0-9]', '', $raw[0]));
+							// Sanitizes input
+							$api_key = ereg_replace('[^A-Za-z0-9]', '', $raw[0]);
+							
+							$this->loadClass('isbndb-api');
+							
+							// Checks key is valid
+							$query = new LIB_FIX_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
+							
+							if ($query->hasError())
+								return array('');
+							else
+								return array($api_key);
 						},
 					'fields'		=> array(
 						array(
@@ -118,108 +155,6 @@ class WP_LIBRARIAN_FIXTURES {
 				)
 			)
 		));
-	}
-	
-	/**
-	 * Adds a button to the library Dashboard for lib admins to visit the test data page
-	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_home_buttons
-	 * @param	array	$buttons	Dashboard buttons
-	 * @return	array				Dash buttons with Test Data button added
-	 */
-	public function addTestDataButton(Array $buttons) {
-		if (!wp_lib_is_library_admin())
-			return $buttons;
-		
-		$buttons[] = array(
-			'bName'	=> 'Test Data',
-			'icon'	=> 'admin-tools',
-			'link'	=> 'dash-page',
-			'value'	=> 'test-data',
-			'title'	=> 'Generate or delete test data'
-		);
-		
-		return $buttons;
-	}
-	
-	/**
-	 * Adds a Dash page to view/create/delete test data
-	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_page_load
-	 * @param	WP_LIB_AJAX_PAGE	$ajax_page	Instance of plugin AJAX page creating class
-	 */
-	public function addTestDataPage(WP_LIB_AJAX_PAGE $ajax_page) {
-		// Stops non-library admins viewing page
-		if (!wp_lib_is_library_admin())
-			return;
-		
-		$page = array(
-			array(
-				'type'		=> 'paras',
-				'content'	=> array(
-					'Generate or delete test data'
-				)
-			)
-		);
-		
-		$form[] = $ajax_page->prepNonce('Managing Test Data');
-		
-		// Looks for any objects marked as test data
-		$query = new WP_Query(array(
-			'post_type'		=> 'wp_lib_items',
-			'post_status'	=> 'publish',
-			'meta_query'	=> array(
-				array(
-					'key'		=> 'wp_lib_test_data',
-					'compare'	=> 'EXISTS'
-				)
-			)
-		));
-		
-		// If there is no test data, allow for its creation
-		if (!$query->have_posts()) {
-		$form[] = array(
-			'type'	=> 'button',
-			'link'	=> 'action',
-			'value'	=> 'gen-test-data',
-			'html'	=> 'Generate',
-			'title'	=> 'Create all fixture data'
-		);
-		} else {
-			$form[] = array(
-				'type'		=> 'button',
-				'link'		=> 'action',
-				'value'		=> 'delete-test-data',
-				'classes'	=> 'dash-button-danger',
-				'html'		=> 'Delete',
-				'title'		=> 'Delete all fixture data'
-			);
-		}
-		
-		$page[] = array(
-			'type'		=> 'form',
-			'content'	=> $form
-		);
-		
-		$ajax_page->sendPage( 'Test Data Management Panel', 'Test Data', $page);
-	}
-	
-	/**
-	 * Parses fixtures data and creates items, members, loans and fines with them
-	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_action_
-	 * @param	WP_LIB_AJAX_ACTION	$ajax_action	Instance of WP-Librarian class for handling Dash actions
-	 */
-	public function genTestData(WP_LIB_AJAX_ACTION $ajax_action) {
-		$ajax_action->addNotification('Placeholder for creating test data');
-		$ajax_action->endAction(false);
-	}
-	
-	/**
-	 * Deletes fixture data, identified as all posts with the post meta 'wp_lib_test_data'
-	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_action_
-	 * @param	WP_LIB_AJAX_ACTION	$ajax_action	Instance of WP-Librarian class for handling Dash actions
-	 */
-	public function deleteTestData(WP_LIB_AJAX_ACTION $ajax_action) {
-		$ajax_action->addNotification('Placeholder for deleting test data');
-		$ajax_action->endAction(false);
 	}
 	
 	/**

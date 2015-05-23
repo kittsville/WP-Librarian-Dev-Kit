@@ -89,7 +89,7 @@ class LIB_FIX_ISBNDB_QUERY {
 	 * Returns error returned by ISBNDB, if one exists
 	 * @return string|null	Error, if one occurred, or NULL
 	 */
-	public function getResponseError() {
+	public function getError() {
 		return $this->hasError() ? $this->response->error : null;
 	}
 }
