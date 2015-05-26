@@ -136,7 +136,7 @@ class LIB_FIX_AJAX {
 				$this->ajax->stopAjax(1007);
 			}
 		} else {
-			$this->addMessage('Starting Fixture Creation Process...');
+			$this->addMessage('Starting Fixture Creation Process (this can take some time)...');
 			$_SESSION['stage']			= 0;
 			$_SESSION['stage_code']		= $this->genStageCode();
 			$_SESSION['item_count']		= isset($_POST['item_count']) ? max((int) $_POST['item_count'], 0) : 40;
@@ -176,7 +176,7 @@ class LIB_FIX_AJAX {
 			
 			// Creates requested number of fixture members
 			case 1:
-				if (true/*$_SESSION['member_count'] === 0*/) { // GGGGG
+				if ($_SESSION['member_count'] === 0) {
 					$this->addMessage('No fixture members to create');
 					++$_SESSION['stage'];
 					break;
@@ -323,7 +323,7 @@ class LIB_FIX_AJAX {
 							'post_type'		=> 'wp_lib_items',
 							'post_title'	=> $book->title,
 							'post_name'		=> $book->book_id,
-							'post_content'	=> array_pop($_SESSION['item_descriptions']),
+							'post_content'	=> array_pop($_SESSION['item_descriptions']) . '\n If you can read this then someone is running the WP-Librarian Dev Kit on a production site. Please shame them on Twitter!',
 							'post_status'	=> 'publish',
 							'tax_input'		=> array(
 								'wp_lib_author'		=> $authors,
@@ -421,8 +421,98 @@ class LIB_FIX_AJAX {
 	 * @param	WP_LIB_AJAX_API	$ajax_api	Instance of WP-Librarian class for handling Dash API calls
 	 */
 	public function deleteTestData(WP_LIB_AJAX_API $ajax_api) {
-		$ajax_api->addNotification('Placeholder for deleting test data');
-		$ajax_api->endAction(false);
+		$ajax_api->checkNonce('Managing Test Data');
+		
+		$this->ajax = $ajax_api;
+		
+		// Process is broken up into multiple stages, using the session to track progress/data
+		session_name('lib_fix_delete_test_data');
+		session_start();
+		
+		if (isset($_POST['stage_code'])) {
+			if ($_POST['stage_code'] === $_SESSION['stage_code']) {
+				// Generates fresh resume code
+				$_SESSION['stage_code'] = $this->genStageCode();
+			} else {
+				$this->ajax->stopAjax(1007);
+			}
+		} else {
+			$this->addMessage('Starting Fixture Deletion Process (this can take some time)...');
+			$_SESSION['stage']			= 0;
+			$_SESSION['stage_code']		= $this->genStageCode();
+		}
+		
+		switch ($_SESSION['stage']) {
+			// Loads all existing fixtures
+			case 0:
+				$wp_query = lib_fix_fixtures();
+				
+				if ($wp_query->have_posts()) {
+					$_SESSION['fixtures']			= wp_list_pluck($wp_query->posts, 'ID');
+					$_SESSION['fixture_count']		= count($_SESSION['fixtures']);
+					$_SESSION['deletion_failed']	= 0;
+					
+					$this->addMessage("Found {$_SESSION['fixture_count']} fixture(s) to delete");
+					
+					// Next request will move on to the next stage
+					++$_SESSION['stage'];
+				} else {
+					$this->addMessage('Nothing to delete, no work for me! ^_^');
+					
+					$_SESSION['stage_code'] = false;
+				}
+			break;
+			
+			// Iterates over fixtures, deleting them in batches
+			case 1:
+				/**
+				 * Disables WP-Librarian's integrity constraints
+				 * This allows for objects to be deleted while they still have dependant objects (e.g. a loan with a dependant fine)
+				 */
+				add_filter('wp_lib_allow_deletion', function() {
+					return true;
+				});
+				
+				// Request specific total. Session var is between-requests
+				$fixtures_deleted = 0;
+				
+				for ($i = 0 ; $i < 20; $i++) {
+					$fixture_id = array_pop($_SESSION['fixtures']);
+					
+					// If there are no more fixtures to delete
+					if ($fixture_id === null)
+						break;
+					
+					if (!wp_delete_post($fixture_id, true)) {
+						$this->addMessage('Failed to delete fixture with ID ' . $fixture_id);
+						++$_SESSION['deletion_failed'];
+					} else {
+						++$fixtures_deleted;
+					}
+				}
+				
+				$fixtures_remaining = count($_SESSION['fixtures']);
+				
+				if ($fixtures_remaining > 0) {
+					$this->addMessage("Deleted {$fixtures_deleted} fixture(s). {$fixtures_remaining} remaining");
+				} else {
+					$fixtures_deleted = $_SESSION['fixture_count'] - $_SESSION['deletion_failed'];
+					
+					if ($_SESSION['deletion_failed'] > 0)
+						$this->addMessage("Deletion partially completed. {$fixtures_deleted} fixture(s) deleted. {$_SESSION['deletion_failed']} failed.");
+					else
+						$this->addMessage("Deletion completed. All {$fixtures_deleted} fixture(s) have been deleted.");
+					
+					$_SESSION['stage_code'] = false;
+				}
+			break;
+			
+			default:
+				$ajax_api->stopAjax(1007);
+				session_destroy();
+			break;
+		}
+		die();
 	}
 	
 	/**

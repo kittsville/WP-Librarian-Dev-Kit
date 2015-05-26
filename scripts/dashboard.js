@@ -46,12 +46,9 @@ jQuery(function($){
 	});
 	
 	deleteButton.click(function() {
-		var params = {
-			'api_request'	: 'delete-fixtures'
-		};
-		
-		wp_lib_api_call( params, function( serverResult ) {
-			
+		recursiveStageIncrementer({
+			'api_request'		: 'delete-fixtures',
+			'wp_lib_ajax_nonce'	: $('form.lib-form input#wp_lib_ajax_nonce').val(),
 		});
 	});
 });
