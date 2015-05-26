@@ -89,7 +89,6 @@ class WP_LIBRARIAN_FIXTURES {
 			'1001' => 'Unable to resume fixture generation',
 			'1002' => 'Unable to open members fixtures file',
 			'1003' => 'Unable to read members fixtures files',
-			'1004' => 'Not enough fixture members to satisfy request',
 			'1005' => "Invalid ISBNDB API Key '\p'",
 			'1006' => 'ISBNDB API returned an error',
 			'1007' => 'Attempted to resume session using invalid token'

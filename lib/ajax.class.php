@@ -174,13 +174,23 @@ class LIB_FIX_AJAX {
 				++$_SESSION['stage'];
 			break;
 			
-			// Creates requested number of fixture members
+			// Prepares to create members by building list of possible members
 			case 1:
 				if ($_SESSION['member_count'] === 0) {
 					$this->addMessage('No fixture members to create');
-					++$_SESSION['stage'];
+					
+					/**
+					 * Skips member creation step
+					 * You could even say it...steps over it
+					 * (•_•)
+					 * ( •_•)>⌐■-■
+					 * (⌐■_■)
+					 */
+					$_SESSION['stage'] += 2;
 					break;
 				}
+				
+				$this->addMessage('Creating members...');
 				
 				$member_json = @file_get_contents($this->wp_librarian_fixtures->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
 				
@@ -189,49 +199,80 @@ class LIB_FIX_AJAX {
 				if ($members === null)
 					$ajax_api->stopAjax(1003);
 				
-				$members_added = 0;
+				$_SESSION['new_members'] = array();
 				
-				foreach ($members as $id => $member) {
-					if ($members_added >= $_SESSION['member_count'])
+				/**
+				 * Loops over members, listing them as a possible fixture if they don't already exist in the library
+				 * Note that $member_id is a unique hash used to identify members if their name/details are changed
+				 * This is completely different from WP-Librarian's $member_id which is the WP post ID (an integer)
+				 */
+				foreach ($members as $member_id => $member) {
+					if (count($_SESSION['new_members']) >= $_SESSION['member_count'])
 						break;
 					
-					if (!isset($_SESSION['existing_members'][$id])) {
-						$member_id = wp_insert_post(array(
-							'post_type'		=> 'wp_lib_members',
-							'post_title'	=> $member->Name,
-							'post_status'	=> 'publish'
-						));
-						
-						if (is_wp_error($member_id)) {
-							$this->addMessage("Error encountered creating member {$member->Name}");
-							continue;
-						}
-						
-						add_post_meta($member_id, '_lib_fix_id',			$id);
-						add_post_meta($member_id, 'wp_lib_member_phone',	$member->Phone);
-						add_post_meta($member_id, 'wp_lib_member_mobile',	$member->Mobile);
-						add_post_meta($member_id, 'wp_lib_member_email',	$member->Email);
-						
-						++$members_added;
-					} else {
+					// Skips adding members that already exist in the library
+					if (isset($_SESSION['existing_members'][$member_id]))
 						continue;
-					}
+					
+					$member->ID = $member_id;
+					
+					$_SESSION['new_members'][] = $member;
 				}
 				
-				// Checks if loop ran out of fixtures before enough members had been created
-				if (!($members_added >= $_SESSION['member_count']))
-					$ajax_api->stopAjax(1004);
-				
-				$this->addMessage("Created {$members_added} members");
+				if (count($_SESSION['new_members']) < count($_SESSION['member_count'])) {
+					$shortfall = count($_SESSION['member_count']) - count($_SESSION['new_members']);
+					
+					$this->addMessage("Fell short of requested member count by {$shortfall} member(s). Mostly likely caused by insufficient fixtures in the JSON file used.");
+				}
 				
 				// Next request will move on to the next stage
 				++$_SESSION['stage'];
 			break;
 			
-			// Locates requested number of fixture items
+			// Creates requested number of fixture members in batches of 50
 			case 2:
+				for ($i = 0; $i < 50; $i++) {
+					$member = array_pop($_SESSION['new_members']);
+					
+					if ($member === null)
+						break;
+					
+					$member_id = wp_insert_post(array(
+						'post_type'		=> 'wp_lib_members',
+						'post_title'	=> $member->Name,
+						'post_status'	=> 'publish'
+					));
+					
+					if (is_wp_error($member_id)) {
+						$this->addMessage("Error encountered creating member {$member->Name}");
+						continue;
+					}
+					
+					add_post_meta($member_id, '_lib_fix_id',			$member->ID);
+					add_post_meta($member_id, 'wp_lib_member_phone',	$member->Phone);
+					add_post_meta($member_id, 'wp_lib_member_mobile',	$member->Mobile);
+					add_post_meta($member_id, 'wp_lib_member_email',	$member->Email);
+				}
+				
+				$remaining = count($_SESSION['new_members']);
+				
+				if ($remaining > 0) {
+					$this->addMessage("Created {$i} new fixture member(s). {$remaining} remain");
+				} else {
+					$this->addMessage("Created {$i} new fixture member(s). No members left to create");
+					
+					// Next request will move on to the next stage
+					++$_SESSION['stage'];
+				}
+			break;
+			
+			// Locates requested number of fixture items
+			case 3:
 				if ($_SESSION['item_count'] === 0) {
 					$this->addMessage('No fixture items to create');
+					
+					// Skips item creation stages
+					$_SESSION['stage'] += 3;
 					break;
 				}
 				
@@ -273,7 +314,7 @@ class LIB_FIX_AJAX {
 			break;
 			
 			// Prepares to get fixture data
-			case 3:
+			case 4:
 				$_SESSION['item_descriptions'] = explode("\n\n", file_get_contents('http://loripsum.net/api/' . $_SESSION['item_count'] . '/plaintext'));
 				
 				// Last element is blank because of newline parsing
@@ -283,15 +324,17 @@ class LIB_FIX_AJAX {
 				if (!term_exists('Book', 'wp_lib_media_type'))
 					wp_insert_term('Book', 'wp_lib_media_type');
 				
+				$this->addMessage('Generated lorem ipsum for item descriptions');
+				
 				// Next request will move on to the next stage
 				++$_SESSION['stage'];
 			break;
 			
 			// Creates fixture data in batches of 10 items per iteration
-			case 4:
+			case 5:
 				$this->wp_librarian_fixtures->loadClass('isbndb-api');
 				
-				for ($i = 0 ; $i < 10; $i++) {
+				for ($i = 0; $i < 10; $i++) {
 					$book_id = array_pop($_SESSION['new_items']);
 					
 					// No more books to process
@@ -323,7 +366,7 @@ class LIB_FIX_AJAX {
 							'post_type'		=> 'wp_lib_items',
 							'post_title'	=> $book->title,
 							'post_name'		=> $book->book_id,
-							'post_content'	=> array_pop($_SESSION['item_descriptions']) . '\n If you can read this then someone is running the WP-Librarian Dev Kit on a production site. Please shame them on Twitter!',
+							'post_content'	=> array_pop($_SESSION['item_descriptions']) . ' If you can read this then someone is running the WP-Librarian Dev Kit on a production site. Please shame them on Twitter!',
 							'post_status'	=> 'publish',
 							'tax_input'		=> array(
 								'wp_lib_author'		=> $authors,
@@ -355,14 +398,14 @@ class LIB_FIX_AJAX {
 				if ($remaining > 0) {
 					$this->addMessage("Created {$i} new fixture item(s). {$remaining} remain");
 				} else {
-					$this->addMessage("Created {$i} new fixture item(s). No fixture left to create");
+					$this->addMessage("Created {$i} new fixture item(s). No items left to create");
 					
 					// Next request will move on to the next stage
 					++$_SESSION['stage'];
 				}
 			break;
 			
-			case 5:
+			case 6:
 				$this->addMessage("Loan/fine creation will be added soon. That's everything for now!");
 				$_SESSION['stage_code'] = false;
 			break;
