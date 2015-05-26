@@ -37,6 +37,8 @@ jQuery(function($){
 		itemCount	= 25;
 		memberCount	= 15;
 		
+		messageDisplay.empty();
+		
 		recursiveStageIncrementer({
 			'api_request'		: 'generate-fixtures',
 			'wp_lib_ajax_nonce'	: $('form.lib-form input#wp_lib_ajax_nonce').val(),
@@ -46,6 +48,8 @@ jQuery(function($){
 	});
 	
 	deleteButton.click(function() {
+		messageDisplay.empty();
+		
 		recursiveStageIncrementer({
 			'api_request'		: 'delete-fixtures',
 			'wp_lib_ajax_nonce'	: $('form.lib-form input#wp_lib_ajax_nonce').val(),
