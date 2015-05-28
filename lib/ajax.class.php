@@ -75,15 +75,6 @@ class LIB_FIX_AJAX {
 		if (!wp_lib_is_library_admin())
 			return;
 		
-		$page = array(
-			array(
-				'type'		=> 'paras',
-				'content'	=> array(
-					'Generate or delete test data'
-				)
-			)
-		);
-		
 		$form = array(
 			$ajax_page->prepNonce('Managing Test Data'),
 			array(
@@ -106,12 +97,24 @@ class LIB_FIX_AJAX {
 			);
 		}
 		
-		$page[] = array(
-			'type'		=> 'form',
-			'content'	=> $form
+		$page = array(
+			array(
+				'type'		=> 'paras',
+				'content'	=> array(
+					'Generate or delete test data'
+				)
+			),
+			array(
+				'type'		=> 'form',
+				'content'	=> $form
+			),
+			array(
+				'type'		=> 'div',
+				'id'		=> 'fixture-process-messages'
+			)
 		);
 		
-		$ajax_page->sendPage('Fixture Management Panel', 'Fixture Management', $page, array($this->wp_librarian_fixtures->getScriptUrl('dashboard')));
+		$ajax_page->sendPage('Fixture Management Panel', 'Fixture Management', $page, array($this->wp_librarian_fixtures->getScriptUrl('FixtureManager')));
 	}
 	
 	/**
