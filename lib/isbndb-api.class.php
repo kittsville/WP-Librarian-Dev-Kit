@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) OR die('No');
  * Handles retrieving data and managing access limitations to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class LIB_FIX_ISBNDB {
+class LIB_DEV_ISBNDB {
 	/**
 	 * The key to grant access to the API
 	 */
@@ -26,7 +26,7 @@ class LIB_FIX_ISBNDB {
 	 * @return	bool			Whether the key is valid
 	 */
 	public static function validKey($api_key) {
-		$request = new LIB_FIX_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
+		$request = new LIB_DEV_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
 		
 		// If request doesn't have an error then the API key is valid
 		return !$request->hasError();
@@ -37,7 +37,7 @@ class LIB_FIX_ISBNDB {
  * A single request made to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class LIB_FIX_ISBNDB_QUERY {
+class LIB_DEV_ISBNDB_QUERY {
 	/**
 	 * URL to access API
 	 */
@@ -56,14 +56,11 @@ class LIB_FIX_ISBNDB_QUERY {
 	
 	/**
 	 * Makes the request on object initialisation
-	 * @todo	Document filters
 	 * @param	string			$api_key	Valid API key to access the ISBNDB API
 	 * @param	string			$endpoint	The API endpoint being queried, e.g. 'books'
 	 * @param	Array|string	$args		API request argument(s)
 	 */
 	public function __construct($api_key, $endpoint, $args) {
-		//$args = apply_filters('lib_fix_isbndb_query_args', $args, $endpoint);
-		
 		// Formats array as URL query parameters
 		$query_params = is_array($args) ? http_build_query($args) : $args;
 		

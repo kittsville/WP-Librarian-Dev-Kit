@@ -36,9 +36,9 @@ class LIB_FIX_AJAX {
 	 * Registers Dashboard AJAX hooks to add Fixtures pages and actions to WP-Librarian
 	 */
 	public function registerHooks() {
-		add_filter('wp_lib_dash_home_buttons',				array($this,	'addTestDataButton'),		10, 2);
+		add_filter('wp_lib_dash_home_buttons',				array($this,	'addFixturesButton'),		10, 2);
 		
-		add_action('wp_lib_dash_page_test-data',			array($this,	'addTestDataPage'),			10, 2);
+		add_action('wp_lib_dash_page_man-fix',				array($this,	'addFixturesPage'),			10, 2);
 		
 		add_action('wp_lib_dash_api_generate-fixtures',		array($this,	'genTestData'),				10, 1);
 		add_action('wp_lib_dash_api_delete-fixtures',		array($this,	'deleteTestData'),			10,	1);
@@ -50,7 +50,7 @@ class LIB_FIX_AJAX {
 	 * @param	array	$buttons	Dashboard buttons
 	 * @return	array				Dash buttons with Test Data button added
 	 */
-	public function addTestDataButton(Array $buttons) {
+	public function addFixturesButton(Array $buttons) {
 		if (!wp_lib_is_library_admin())
 			return $buttons;
 		
@@ -58,7 +58,7 @@ class LIB_FIX_AJAX {
 			'bName'	=> 'Test Data',
 			'icon'	=> 'admin-tools',
 			'link'	=> 'dash-page',
-			'value'	=> 'test-data',
+			'value'	=> 'man-fix',
 			'title'	=> 'Generate or delete test data'
 		);
 		
@@ -70,7 +70,7 @@ class LIB_FIX_AJAX {
 	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_page_load
 	 * @param	WP_LIB_AJAX_PAGE	$ajax_page	Instance of plugin AJAX page creating class
 	 */
-	public function addTestDataPage(WP_LIB_AJAX_PAGE $ajax_page) {
+	public function addFixturesPage(WP_LIB_AJAX_PAGE $ajax_page) {
 		// Stops non-library admins viewing page
 		if (!wp_lib_is_library_admin())
 			return;
