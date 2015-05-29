@@ -69,11 +69,19 @@ class LIB_FIX_ISBNDB_QUERY {
 		
 		$this->query_url = self::URL_BASE . $api_key . '/' . $endpoint . '/' . $query_params;
 		
-		$this->response = file_get_contents($this->query_url);
+		$context = stream_context_create(array('http' => array(
+			'ignore_errors' => true
+		)));
 		
-		// Parses JSON if request didn't fail (not including API errors)
-		if ($this->response !== false) {
+		$this->response = file_get_contents($this->query_url, false, $context);
+		
+		// Parses JSON if request succeeded (not including API errors)
+		if ($this->response !== false && http_response_code() === 200) {
 			$this->response = json_decode($this->response);
+		} else {
+			$this->response = new stdClass();
+			
+			$this->response->error = 'HTTP Error ' + http_response_code();
 		}
 	}
 	
