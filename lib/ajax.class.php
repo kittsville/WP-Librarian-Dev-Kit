@@ -78,6 +78,30 @@ class LIB_FIX_AJAX {
 		$form = array(
 			$ajax_page->prepNonce('Managing Test Data'),
 			array(
+				'type'	=> 'div',
+				'inner'	=> array(
+					array(
+						'type'	=> 'input',
+						'id'	=> 'item-count',
+						'attr'	=> array(
+							'type'			=> 'number',
+							'min'			=> '0',
+							'placeholder'	=> 'Items'
+						)
+					),
+					array(
+						'type'	=> 'input',
+						'id'	=> 'member-count',
+						'attr'	=> array(
+							'type'			=> 'number',
+							'min'			=> '0',
+							'max'			=> '5000', // Current fixtures limit. Doesn't matter that user can remove attribute as server can catch excessive fixture requests
+							'placeholder'	=> 'Members'
+						)
+					)
+				)
+			),
+			array(
 				'type'	=> 'button',
 				'link'	=> 'none',
 				'id'	=> 'gen-test-data',
@@ -193,7 +217,7 @@ class LIB_FIX_AJAX {
 					break;
 				}
 				
-				$this->addMessage('Creating members...');
+				$this->addMessage("Creating {$_SESSION['member_count']} member(s)...");
 				
 				$member_json = @file_get_contents($this->wp_librarian_fixtures->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
 				
@@ -201,6 +225,8 @@ class LIB_FIX_AJAX {
 				
 				if ($members === null)
 					$ajax_api->stopAjax(1003);
+				
+				$this->addMessage('Members fixtures file contains ' . count(get_object_vars($members)) . ' member(s).');
 				
 				$_SESSION['new_members'] = array();
 				
@@ -262,7 +288,7 @@ class LIB_FIX_AJAX {
 				if ($remaining > 0) {
 					$this->addMessage("Created {$i} new fixture member(s). {$remaining} remain");
 				} else {
-					$this->addMessage("Created {$i} new fixture member(s). No members left to create");
+					$this->addMessage("Created {$i} new fixture member(s). Member generation completed");
 					
 					// Next request will move on to the next stage
 					++$_SESSION['stage'];
@@ -277,6 +303,8 @@ class LIB_FIX_AJAX {
 					// Skips item creation stages
 					$_SESSION['stage'] += 3;
 					break;
+				} else {
+					$this->addMessage("Creating {$_SESSION['item_count']} item(s)...");
 				}
 				
 				$_SESSION['api_key'] = $this->getApiKey();

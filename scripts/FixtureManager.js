@@ -5,14 +5,13 @@ var FixtureManager = {
 		destroyButton:	jQuery('a#delete-test-data'),
 		formNonce:		jQuery('form.lib-form input#wp_lib_ajax_nonce').val(),
 		messageDiv:		jQuery('div#fixture-process-messages'),
-		numItems:		15,
-		numMembers:		15,
+		itemInput:		jQuery('form.lib-form input#item-count'),
+		memberInput:	jQuery('form.lib-form input#member-count'),
 		activeRequest:	false,
 		stopRequest:	false
 	},
 	
 	init: function() {
-		console.log('Init called');
 		this.bindUIActions();
 	},
 	
@@ -36,8 +35,8 @@ var FixtureManager = {
 		FixtureManager.recursiveStageIncrementer({
 			'api_request'		: 'generate-fixtures',
 			'wp_lib_ajax_nonce'	: FixtureManager.s.formNonce,
-			'item_count'		: FixtureManager.s.numItems,
-			'member_count'		: FixtureManager.s.numMembers
+			'item_count'		: parseInt(FixtureManager.s.itemInput.val(), 10), // Server handles NaN
+			'member_count'		: parseInt(FixtureManager.s.memberInput.val(), 10)
 		});
 	},
 	
