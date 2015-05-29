@@ -1,8 +1,8 @@
 var FixtureManager = {
 	// Settings
 	s: {
-		createButton:	jQuery('a#gen-test-data'),
-		destroyButton:	jQuery('a#delete-test-data'),
+		createButton:	jQuery('a#gen-fixtures'),
+		destroyButton:	jQuery('a#delete-fixtures'),
 		formNonce:		jQuery('form.lib-form input#wp_lib_ajax_nonce').val(),
 		messageDiv:		jQuery('div#fixture-process-messages'),
 		itemInput:		jQuery('form.lib-form input#item-count'),

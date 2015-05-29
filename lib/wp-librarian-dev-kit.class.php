@@ -31,7 +31,7 @@ class WP_LIBRARIAN_DEV_KIT {
 		
 		if (defined('DOING_AJAX') && DOING_AJAX) {
 			$this->loadClass('ajax');
-			new LIB_FIX_AJAX($this);
+			new LIB_DEV_AJAX($this);
 		}
 		
 		require_once($this->plugin_path . '/wp-librarian-dev-kit-helpers.php');
@@ -101,7 +101,7 @@ class WP_LIBRARIAN_DEV_KIT {
 	 * @return	Array				WP-Librarian's modified settings
 	 */
 	public function addSettings(array $settings) {
-		$settings['wp_libfix_api_key'] = array('');
+		$settings['lib_dev_api_key'] = array('');
 		
 		return $settings;
 	}
@@ -112,7 +112,7 @@ class WP_LIBRARIAN_DEV_KIT {
 	 * @return	Array					Modified WP-Lib settings page tabs
 	 */
 	public function addSettingsTab(Array $settings_tabs) {
-		$settings_tabs['test-data'] = array('wp_libfix_settings', 'Test Data');
+		$settings_tabs['dev-kit'] = array('lib_dev_settings', 'Dev Kit');
 		
 		return $settings_tabs;
 	}
@@ -122,11 +122,11 @@ class WP_LIBRARIAN_DEV_KIT {
 	 */
 	public function registerSettingsSection() {
 		WP_LIB_SETTINGS_SECTION::registerSection(array(
-			'name'		=> 'wp_libfix_settings',
-			'title'		=> 'Test Data Settings',
+			'name'		=> 'lib_dev_settings',
+			'title'		=> 'Dev Kit Settings',
 			'settings'	=> array(
 				array(
-					'name'			=> 'wp_libfix_api_key',
+					'name'			=> 'lib_dev_api_key',
 					'sanitize'		=>
 						function($raw) {
 							// Sanitizes input
@@ -135,7 +135,7 @@ class WP_LIBRARIAN_DEV_KIT {
 							$this->loadClass('isbndb-api');
 							
 							// Checks key is valid
-							$query = new LIB_FIX_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
+							$query = new LIB_DEV_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
 							
 							if ($query->hasError())
 								return array('');
@@ -162,10 +162,10 @@ class WP_LIBRARIAN_DEV_KIT {
 	 * @see					http://codex.wordpress.org/Plugin_API/Action_Reference/admin_enqueue_scripts
 	 */
 	public function registerAdminScripts($hook) {
-		wp_register_script('wp_libfix_setings', $this->getScriptUrl('settings'),  array('jquery'), '0.1');
+		wp_register_script('lib_dev_settings', $this->getScriptUrl('settings'),  array('jquery'), '0.1');
 		
-		wp_localize_script('wp_libfix_setings', 'wp_libfix_vars', array(
-			'apiKey'	=> get_option('wp_libfix_api_key', array(''))[0]
+		wp_localize_script('lib_dev_settings', 'wp_libfix_vars', array(
+			'apiKey'	=> get_option('lib_dev_api_key', array(''))[0]
 		));
 	}
 	
@@ -174,7 +174,7 @@ class WP_LIBRARIAN_DEV_KIT {
 	 * @param string $tab Current settings page tab name
 	 */
 	public function enqueueSettingsScripts($tab) {
-		if ($tab === 'test-data')
-			wp_enqueue_script('wp_libfix_setings');
+		if ($tab === 'dev-kit')
+			wp_enqueue_script('lib_dev_settings');
 	}
 }

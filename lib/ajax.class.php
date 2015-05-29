@@ -5,7 +5,7 @@ defined('ABSPATH') OR die('No');
 /**
  * Handles Library Dashboard AJAX pages and page elements
  */
-class LIB_FIX_AJAX {
+class LIB_DEV_AJAX {
 	/**
 	 * Instance of core plugin class
 	 */
@@ -40,22 +40,22 @@ class LIB_FIX_AJAX {
 		
 		add_action('wp_lib_dash_page_man-fix',				array($this,	'addFixturesPage'),			10, 2);
 		
-		add_action('wp_lib_dash_api_generate-fixtures',		array($this,	'genTestData'),				10, 1);
-		add_action('wp_lib_dash_api_delete-fixtures',		array($this,	'deleteTestData'),			10,	1);
+		add_action('wp_lib_dash_api_generate-fixtures',		array($this,	'genFixtures'),				10, 1);
+		add_action('wp_lib_dash_api_delete-fixtures',		array($this,	'deleteFixtures'),			10,	1);
 	}
 	
 	/**
 	 * Adds a button to the library Dashboard for lib admins to visit the test data page
 	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_home_buttons
 	 * @param	array	$buttons	Dashboard buttons
-	 * @return	array				Dash buttons with Test Data button added
+	 * @return	array				Dash buttons with Fixture button added
 	 */
 	public function addFixturesButton(Array $buttons) {
 		if (!wp_lib_is_library_admin())
 			return $buttons;
 		
 		$buttons[] = array(
-			'bName'	=> 'Test Data',
+			'bName'	=> 'Fixtures',
 			'icon'	=> 'admin-tools',
 			'link'	=> 'dash-page',
 			'value'	=> 'man-fix',
@@ -76,7 +76,7 @@ class LIB_FIX_AJAX {
 			return;
 		
 		$form = array(
-			$ajax_page->prepNonce('Managing Test Data'),
+			$ajax_page->prepNonce('Manage Fixtures'),
 			array(
 				'type'	=> 'div',
 				'inner'	=> array(
@@ -104,20 +104,20 @@ class LIB_FIX_AJAX {
 			array(
 				'type'	=> 'button',
 				'link'	=> 'none',
-				'id'	=> 'gen-test-data',
+				'id'	=> 'gen-fixtures',
 				'html'	=> 'Generate',
-				'title'	=> 'Create fixture data'
+				'title'	=> 'Create fixtures'
 			)
 		);
 		
-		if (lib_fix_fixtures()->have_posts()) {
+		if (lib_dev_fixtures()->have_posts()) {
 			$form[] = array(
 				'type'		=> 'button',
 				'link'		=> 'none',
-				'id'		=> 'delete-test-data',
+				'id'		=> 'delete-fixtures',
 				'classes'	=> 'dash-button-danger',
 				'html'		=> 'Delete',
-				'title'		=> 'Delete all fixture data'
+				'title'		=> 'Delete all fixtures'
 			);
 		}
 		
@@ -125,7 +125,7 @@ class LIB_FIX_AJAX {
 			array(
 				'type'		=> 'paras',
 				'content'	=> array(
-					'Generate or delete test data'
+					'Generate or delete fixture items and members'
 				)
 			),
 			array(
@@ -146,13 +146,13 @@ class LIB_FIX_AJAX {
 	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_api_
 	 * @param	WP_LIB_AJAX_API	$ajax_api	Instance of WP-Librarian class for handling Dash API calls
 	 */
-	public function genTestData(WP_LIB_AJAX_API $ajax_api) {
-		$ajax_api->checkNonce('Managing Test Data');
+	public function genFixtures(WP_LIB_AJAX_API $ajax_api) {
+		$ajax_api->checkNonce('Manage Fixtures');
 		
 		$this->ajax = $ajax_api;
 		
 		// Process is broken up into multiple stages, using the session to track progress/data
-		session_name('lib_fix_gen_test_data');
+		session_name('lib_dev_gen_test_data');
 		session_start();
 		
 		if (isset($_POST['stage_code'])) {
@@ -174,7 +174,7 @@ class LIB_FIX_AJAX {
 		switch ($_SESSION['stage']) {
 			// Loads existing fixtures in library
 			case 0:
-				$wp_query = lib_fix_fixtures();
+				$wp_query = lib_dev_fixtures();
 			
 				// Creates an array of all existing fixtures in the library
 				$_SESSION['existing_items']		= array();
@@ -185,11 +185,11 @@ class LIB_FIX_AJAX {
 						
 						switch(get_post_type()) {
 							case 'wp_lib_items':
-								$_SESSION['existing_items'][get_post_meta(get_the_ID(), '_lib_fix_id', true)] = get_the_ID();
+								$_SESSION['existing_items'][get_post_meta(get_the_ID(), '_lib_dev_id', true)] = get_the_ID();
 							break;
 							
 							case 'wp_lib_members':
-								$_SESSION['existing_members'][get_post_meta(get_the_ID(), '_lib_fix_id', true)] = get_the_ID();
+								$_SESSION['existing_members'][get_post_meta(get_the_ID(), '_lib_dev_id', true)] = get_the_ID();
 							break;
 						}
 					}
@@ -277,7 +277,7 @@ class LIB_FIX_AJAX {
 						continue;
 					}
 					
-					add_post_meta($member_id, '_lib_fix_id',			$member->ID);
+					add_post_meta($member_id, '_lib_dev_id',			$member->ID);
 					add_post_meta($member_id, 'wp_lib_member_phone',	$member->Phone);
 					add_post_meta($member_id, 'wp_lib_member_mobile',	$member->Mobile);
 					add_post_meta($member_id, 'wp_lib_member_email',	$member->Email);
@@ -311,7 +311,7 @@ class LIB_FIX_AJAX {
 				
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
-				$publisher_query = new LIB_FIX_ISBNDB_QUERY($_SESSION['api_key'], 'publisher', 'doubleday');
+				$publisher_query = new LIB_DEV_ISBNDB_QUERY($_SESSION['api_key'], 'publisher', 'doubleday');
 				
 				$this->checkIsbndbError($publisher_query);
 				
@@ -373,7 +373,7 @@ class LIB_FIX_AJAX {
 						break;
 					
 					// Loads book title/authors/ISBN13 from ISBNDB API
-					$book_query = new LIB_FIX_ISBNDB_QUERY($_SESSION['api_key'], 'book', $book_id);
+					$book_query = new LIB_DEV_ISBNDB_QUERY($_SESSION['api_key'], 'book', $book_id);
 					
 					if (!$book_query->hasError()) {
 						$book = $book_query->response->data[0];
@@ -410,7 +410,7 @@ class LIB_FIX_AJAX {
 							continue;
 						}
 						
-						add_post_meta($item_id, '_lib_fix_id',			$book->book_id);
+						add_post_meta($item_id, '_lib_dev_id',			$book->book_id);
 						add_post_meta($item_id, 'wp_lib_item_isbn',		$book->isbn13);
 						add_post_meta($item_id, 'wp_lib_item_loanable',	true);
 					} else {
@@ -470,7 +470,7 @@ class LIB_FIX_AJAX {
 	 * @return string ISBNDB API v2 key
 	 */
 	private function getApiKey() {
-		$api_key = get_option('wp_libfix_api_key', false)[0];
+		$api_key = get_option('lib_dev_api_key', false)[0];
 		
 		if (!$api_key)
 			$ajax_api->stopAjax(1005, $api_key);
@@ -480,9 +480,9 @@ class LIB_FIX_AJAX {
 	
 	/**
 	 * Closes the Dashboard AJAX request if the ISBNDB API v2 returned an error
-	 * @param	LIB_FIX_ISBNDB_QUERY $query	ISBNDB Query being checked
+	 * @param	LIB_DEV_ISBNDB_QUERY $query	ISBNDB Query being checked
 	 */
-	private function checkIsbndbError(LIB_FIX_ISBNDB_QUERY $query) {
+	private function checkIsbndbError(LIB_DEV_ISBNDB_QUERY $query) {
 		if ($query->hasError()) {
 			$this->addMessage('ISBNDB API Error: ' . $query->getError());
 			$this->ajax->stopAjax(1006);
@@ -494,13 +494,13 @@ class LIB_FIX_AJAX {
 	 * @link	https://github.com/kittsville/WP-Librarian/wiki/wp_lib_dash_api_
 	 * @param	WP_LIB_AJAX_API	$ajax_api	Instance of WP-Librarian class for handling Dash API calls
 	 */
-	public function deleteTestData(WP_LIB_AJAX_API $ajax_api) {
-		$ajax_api->checkNonce('Managing Test Data');
+	public function deleteFixtures(WP_LIB_AJAX_API $ajax_api) {
+		$ajax_api->checkNonce('Manage Fixtures');
 		
 		$this->ajax = $ajax_api;
 		
 		// Process is broken up into multiple stages, using the session to track progress/data
-		session_name('lib_fix_delete_test_data');
+		session_name('lib_dev_delete_test_data');
 		session_start();
 		
 		if (isset($_POST['stage_code'])) {
@@ -519,7 +519,7 @@ class LIB_FIX_AJAX {
 		switch ($_SESSION['stage']) {
 			// Loads all existing fixtures
 			case 0:
-				$wp_query = lib_fix_fixtures();
+				$wp_query = lib_dev_fixtures();
 				
 				if ($wp_query->have_posts()) {
 					$_SESSION['fixtures']			= wp_list_pluck($wp_query->posts, 'ID');
