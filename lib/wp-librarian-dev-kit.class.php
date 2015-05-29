@@ -3,9 +3,9 @@
 defined('ABSPATH') OR die('No');
 
 /**
- * Hooks onto WP_Librarian filters to provide the means to create test data
+ * Hooks onto WP-Librarian's filters to provide dev kit functionality
  */
-class WP_LIBRARIAN_FIXTURES {
+class WP_LIBRARIAN_DEV_KIT {
 	/**
 	 * Path to plugin folder, without trailing slash
 	 * @var string
@@ -34,7 +34,7 @@ class WP_LIBRARIAN_FIXTURES {
 			new LIB_FIX_AJAX($this);
 		}
 		
-		require_once($this->plugin_path . '/wp-librarian-fixtures-helpers.php');
+		require_once($this->plugin_path . '/wp-librarian-dev-kit-helpers.php');
 	}
 	
 	/**
@@ -80,9 +80,9 @@ class WP_LIBRARIAN_FIXTURES {
 	}
 	
 	/**
-	 * Adds WP-Librarian-Fixtures error codes to WP-Librarian's list of error codes
+	 * Adds WP-Librarian Dev Kit's error codes to WP-Librarian's list of error codes
 	 * @param	array	$errors	WP-Librarian's error codes and their descriptions
-	 * @return	array			WP-Librarian's/WP-Lib-Fixtures' error codes and their descriptions
+	 * @return	array			WP-Librarian's/WP-Lib Dev Kit's' error codes and their descriptions
 	 */
 	public function registerErrors($errors) {
 		return $errors + array(

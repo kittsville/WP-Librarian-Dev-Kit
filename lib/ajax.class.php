@@ -9,7 +9,7 @@ class LIB_FIX_AJAX {
 	/**
 	 * Instance of core plugin class
 	 */
-	private $wp_librarian_fixtures;
+	private $wp_librarian_dev_kit;
 	
 	/**
 	 * Instance of WP-Librarian AJAX class (WP_LIB_AJAX|WP_LIB_AJAX_ACTION|WP_LIB_AJAX_PAGE)
@@ -24,10 +24,10 @@ class LIB_FIX_AJAX {
 	
 	/**
 	 * Registers Dashboard AJAX hooks and adds instance of core plugin class as object property
-	 * @param	WP_LIBRARIAN_FIXTURES	$wp_librarian_fixtures	Instance of core plugin class
+	 * @param	WP_LIBRARIAN_DEV_KIT	$wp_librarian_dev_kit	Instance of core plugin class
 	 */
-	public function __construct(WP_LIBRARIAN_FIXTURES $wp_librarian_fixtures) {
-		$this->wp_librarian_fixtures = $wp_librarian_fixtures;
+	public function __construct(WP_LIBRARIAN_DEV_KIT $wp_librarian_dev_kit) {
+		$this->wp_librarian_dev_kit = $wp_librarian_dev_kit;
 		
 		$this->registerHooks();
 	}
@@ -138,7 +138,7 @@ class LIB_FIX_AJAX {
 			)
 		);
 		
-		$ajax_page->sendPage('Fixture Management Panel', 'Fixture Management', $page, array($this->wp_librarian_fixtures->getScriptUrl('FixtureManager')));
+		$ajax_page->sendPage('Fixture Management Panel', 'Fixture Management', $page, array($this->wp_librarian_dev_kit->getScriptUrl('FixtureManager')));
 	}
 	
 	/**
@@ -219,7 +219,7 @@ class LIB_FIX_AJAX {
 				
 				$this->addMessage("Creating {$_SESSION['member_count']} member(s)...");
 				
-				$member_json = @file_get_contents($this->wp_librarian_fixtures->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
+				$member_json = @file_get_contents($this->wp_librarian_dev_kit->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
 				
 				$members = json_decode($member_json);
 				
@@ -309,7 +309,7 @@ class LIB_FIX_AJAX {
 				
 				$_SESSION['api_key'] = $this->getApiKey();
 				
-				$this->wp_librarian_fixtures->loadClass('isbndb-api');
+				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
 				$publisher_query = new LIB_FIX_ISBNDB_QUERY($_SESSION['api_key'], 'publisher', 'doubleday');
 				
@@ -363,7 +363,7 @@ class LIB_FIX_AJAX {
 			
 			// Creates fixture data in batches of 10 items per iteration
 			case 5:
-				$this->wp_librarian_fixtures->loadClass('isbndb-api');
+				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
 				for ($i = 0; $i < 10; $i++) {
 					$book_id = array_pop($_SESSION['new_items']);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP-Librarian Fixtures Creator
+ * Plugin Name: WP-Librarian Development Kit
  * Description: Generates items/members/loans/fines to test WP-Librarian
  * Version: 0.0.1
  * For WP-Librarian: Alpha v3 (Badger Claw)
@@ -24,6 +24,6 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-require_once (dirname( __FILE__ ) . '/lib/wp-librarian-fixtures.class.php');
+require_once (dirname( __FILE__ ) . '/lib/wp-librarian-dev-kit.class.php');
 
-new WP_LIBRARIAN_FIXTURES;
+new WP_LIBRARIAN_DEV_KIT;
