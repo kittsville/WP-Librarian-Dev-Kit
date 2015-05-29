@@ -1,5 +1,5 @@
-#WP Librarian Fixtures
+#WP-Librarian Development Kit
 
-This WordPress plugin is an addon for [WP-Librarian](/kittsville/WP-Librarian), providing the ability to create a selection of data to test the features and functionality of WP-Librarian. By using only hooks from the base plugin, WP-Lib-Fixtures is totally harmless on its own and can be installed on any WordPress site without moaning about lacking WP-Librarian. But, given its base plugin to work off of, WP-Lib-Fixtures can greatly ease development involving or of WP-Librarian by giving you a range of data to work with.
+The WP-Librarian Dev Kit, not to be confused with the [WP-Librarian Dev, Kit](https://github.com/kittsville), is a WordPress plugin designed to make development of WP-Librarian easier by handling fixtures, asset minification and any other tasks that crop up which could be automated.
 
-This is a while away from being ready.
+Currently this plugin is only capable of creating fixture items and members to test the functionality of WP-Librarian. In time loans and fines will be added then eventually asset minification, so [KitPipe](https://github.com/kittsville/KitPipe) can be put down.
