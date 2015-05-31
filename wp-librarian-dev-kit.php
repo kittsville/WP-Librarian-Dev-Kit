@@ -26,4 +26,4 @@
 
 require_once (dirname( __FILE__ ) . '/lib/wp-librarian-dev-kit.class.php');
 
-new WP_LIBRARIAN_DEV_KIT;
+new WP_Librarian_Dev_Kit;

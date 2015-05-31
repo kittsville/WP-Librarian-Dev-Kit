@@ -5,7 +5,7 @@ defined('ABSPATH') OR die('No');
 /**
  * Hooks onto WP-Librarian's filters to provide dev kit functionality
  */
-class WP_LIBRARIAN_DEV_KIT {
+class WP_Librarian_Dev_Kit {
 	/**
 	 * Path to plugin folder, without trailing slash
 	 * @var string
@@ -31,7 +31,7 @@ class WP_LIBRARIAN_DEV_KIT {
 		
 		if (defined('DOING_AJAX') && DOING_AJAX) {
 			$this->loadClass('ajax');
-			new LIB_DEV_AJAX($this);
+			new LIB_Dev_AJAX($this);
 		}
 		
 		require_once($this->plugin_path . '/wp-librarian-dev-kit-helpers.php');
@@ -135,7 +135,7 @@ class WP_LIBRARIAN_DEV_KIT {
 							$this->loadClass('isbndb-api');
 							
 							// Checks key is valid
-							$query = new LIB_DEV_ISBNDB_QUERY($api_key, 'book', 'raising_steam');
+							$query = new LIB_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
 							
 							if ($query->hasError())
 								return array('');

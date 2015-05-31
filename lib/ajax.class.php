@@ -5,7 +5,7 @@ defined('ABSPATH') OR die('No');
 /**
  * Handles Library Dashboard AJAX pages and page elements
  */
-class LIB_DEV_AJAX {
+class LIB_Dev_AJAX {
 	/**
 	 * Instance of core plugin class
 	 */
@@ -24,9 +24,9 @@ class LIB_DEV_AJAX {
 	
 	/**
 	 * Registers Dashboard AJAX hooks and adds instance of core plugin class as object property
-	 * @param	WP_LIBRARIAN_DEV_KIT	$wp_librarian_dev_kit	Instance of core plugin class
+	 * @param	WP_Librarian_Dev_Kit	$wp_librarian_dev_kit	Instance of core plugin class
 	 */
-	public function __construct(WP_LIBRARIAN_DEV_KIT $wp_librarian_dev_kit) {
+	public function __construct(WP_Librarian_Dev_Kit $wp_librarian_dev_kit) {
 		$this->wp_librarian_dev_kit = $wp_librarian_dev_kit;
 		
 		$this->registerHooks();
@@ -311,7 +311,7 @@ class LIB_DEV_AJAX {
 				
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
-				$publisher_query = new LIB_DEV_ISBNDB_QUERY($_SESSION['api_key'], 'publisher', 'doubleday');
+				$publisher_query = new LIB_Dev_ISBNDB_Query($_SESSION['api_key'], 'publisher', 'doubleday');
 				
 				$this->checkIsbndbError($publisher_query);
 				
@@ -373,7 +373,7 @@ class LIB_DEV_AJAX {
 						break;
 					
 					// Loads book title/authors/ISBN13 from ISBNDB API
-					$book_query = new LIB_DEV_ISBNDB_QUERY($_SESSION['api_key'], 'book', $book_id);
+					$book_query = new LIB_Dev_ISBNDB_Query($_SESSION['api_key'], 'book', $book_id);
 					
 					if (!$book_query->hasError()) {
 						$book = $book_query->response->data[0];
@@ -480,9 +480,9 @@ class LIB_DEV_AJAX {
 	
 	/**
 	 * Closes the Dashboard AJAX request if the ISBNDB API v2 returned an error
-	 * @param	LIB_DEV_ISBNDB_QUERY $query	ISBNDB Query being checked
+	 * @param	LIB_Dev_ISBNDB_Query $query	ISBNDB Query being checked
 	 */
-	private function checkIsbndbError(LIB_DEV_ISBNDB_QUERY $query) {
+	private function checkIsbndbError(LIB_Dev_ISBNDB_Query $query) {
 		if ($query->hasError()) {
 			$this->addMessage('ISBNDB API Error: ' . $query->getError());
 			$this->ajax->stopAjax(1006);
