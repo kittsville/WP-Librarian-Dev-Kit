@@ -121,7 +121,7 @@ class WP_Librarian_Dev_Kit {
 	 * Registers plugin's settings section using WP-Librarian's settings class
 	 */
 	public function registerSettingsSection() {
-		WP_LIB_SETTINGS_SECTION::registerSection(array(
+		WP_Lib_Settings_Section::registerSection(array(
 			'name'		=> 'lib_dev_settings',
 			'title'		=> 'Dev Kit Settings',
 			'settings'	=> array(
