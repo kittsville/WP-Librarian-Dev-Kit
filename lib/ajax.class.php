@@ -174,6 +174,16 @@ class LIB_Dev_AJAX {
 		switch ($_SESSION['stage']) {
 			// Loads existing fixtures in library
 			case 0:
+				// Skips everything if there's nothing to do
+				if ($_SESSION['member_count'] === 0 && $_SESSION['item_count'] === 0) {
+					$this->addMessage('Created 0 items and 0 members');
+					$this->addMessage('You sure are pushing this Development Kit to its limits');
+					
+					$_SESSION['stage_code'] = false;
+					
+					break;
+				}
+				
 				$wp_query = lib_dev_fixtures();
 			
 				// Creates an array of all existing fixtures in the library
