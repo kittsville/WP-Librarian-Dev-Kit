@@ -543,7 +543,7 @@ class LIB_Dev_AJAX {
 				 * Disables WP-Librarian's integrity constraints
 				 * This allows for objects to be deleted while they still have dependant objects (e.g. a loan with a dependant fine)
 				 */
-				add_filter('wp_lib_allow_deletion', function() {
+				add_filter('wp_lib_bypass_deletion_checks', function() {
 					return true;
 				});
 				
