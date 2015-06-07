@@ -264,6 +264,8 @@ class LIB_Dev_AJAX {
 					$this->addMessage("Fell short of requested member count by {$shortfall} member(s). Mostly likely caused by insufficient fixtures in the JSON file used.");
 				}
 				
+				$_SESSION['meta_use_threshold'] = get_option('lib_dev_meta_threshold', array(0))[0];
+				
 				// Next request will move on to the next stage
 				++$_SESSION['stage'];
 			break;
@@ -287,10 +289,21 @@ class LIB_Dev_AJAX {
 						continue;
 					}
 					
-					add_post_meta($member_id, '_lib_dev_id',			$member->ID);
-					add_post_meta($member_id, 'wp_lib_member_phone',	$member->Phone);
-					add_post_meta($member_id, 'wp_lib_member_mobile',	$member->Mobile);
-					add_post_meta($member_id, 'wp_lib_member_email',	$member->Email);
+					add_post_meta($member_id, '_lib_dev_id', $member->ID);
+					
+					$post_meta = array(
+						'wp_lib_member_phone'	=> $member->Phone,
+						'wp_lib_member_mobile'	=> $member->Mobile,
+						'wp_lib_member_email'	=> $member->Email,
+					);
+					
+					// Makes a certain percentage of member meta blank, for checking how WP-Librarian handles empty (optional) values
+					foreach ($post_meta as $meta_key => $meta_value) {
+						if (rand(0, 100) >= $_SESSION['meta_use_threshold'])
+							add_post_meta($member_id, $meta_key, $meta_value);
+						else
+							add_post_meta($member_id, $meta_key, '');
+					}
 				}
 				
 				$remaining = count($_SESSION['new_members']);

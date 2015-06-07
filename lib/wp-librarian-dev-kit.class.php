@@ -101,7 +101,8 @@ class WP_Librarian_Dev_Kit {
 	 * @return	Array				WP-Librarian's modified settings
 	 */
 	public function addSettings(array $settings) {
-		$settings['lib_dev_api_key'] = array('');
+		$settings['lib_dev_api_key']		= array('');
+		$settings['lib_dev_meta_threshold']	= array(10);
 		
 		return $settings;
 	}
@@ -135,7 +136,7 @@ class WP_Librarian_Dev_Kit {
 							$this->loadClass('isbndb-api');
 							
 							// Checks key is valid
-							$query = new LIB_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
+							$query = new Lib_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
 							
 							if ($query->hasError())
 								return array('');
@@ -151,7 +152,23 @@ class WP_Librarian_Dev_Kit {
 							)
 						)
 					)
-				)
+				),
+				array(
+					'name'		=> 'lib_dev_meta_threshold',
+					'sanitize'	=>
+						function($raw) {
+							return array(max(min((int) $raw[0], 100), 0)); // Sanitizes to an int 0-100 inclusive
+						},
+					'fields'	=> array(
+						array(
+							'name'			=> 'Blank Meta Percentage',
+							'field_type'	=> 'textInput',
+							'args'			=> array(
+								'alt'		=> 'The percentage of meta fields (email/phone number) to leave blank when generating fixtures'
+							)
+						)
+					)
+				),
 			)
 		));
 	}
