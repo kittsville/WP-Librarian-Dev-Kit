@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) OR die('No');
  * Handles retrieving data and managing access limitations to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class LIB_Dev_ISBNDB {
+class Lib_Dev_ISBNDB {
 	/**
 	 * The key to grant access to the API
 	 */
@@ -26,7 +26,7 @@ class LIB_Dev_ISBNDB {
 	 * @return	bool			Whether the key is valid
 	 */
 	public static function validKey($api_key) {
-		$request = new LIB_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
+		$request = new Lib_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
 		
 		// If request doesn't have an error then the API key is valid
 		return !$request->hasError();
@@ -37,7 +37,7 @@ class LIB_Dev_ISBNDB {
  * A single request made to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class LIB_Dev_ISBNDB_Query {
+class Lib_Dev_ISBNDB_Query {
 	/**
 	 * URL to access API
 	 */

@@ -31,7 +31,7 @@ class WP_Librarian_Dev_Kit {
 		
 		if (defined('DOING_AJAX') && DOING_AJAX) {
 			$this->loadClass('ajax');
-			new LIB_Dev_AJAX($this);
+			new Lib_Dev_AJAX($this);
 		}
 		
 		require_once($this->plugin_path . '/wp-librarian-dev-kit-helpers.php');
