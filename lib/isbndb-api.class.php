@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) OR die('No');
  * Handles retrieving data and managing access limitations to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class Lib_Dev_ISBNDB {
+class Lib_Dev_ISBNdb {
 	/**
 	 * The key to grant access to the API
 	 */
@@ -26,7 +26,7 @@ class Lib_Dev_ISBNDB {
 	 * @return	bool			Whether the key is valid
 	 */
 	public static function validKey($api_key) {
-		$request = new Lib_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
+		$request = new Lib_Dev_ISBNdb_Query($api_key, 'book', 'raising_steam');
 		
 		// If request doesn't have an error then the API key is valid
 		return !$request->hasError();
@@ -37,7 +37,7 @@ class Lib_Dev_ISBNDB {
  * A single request made to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
-class Lib_Dev_ISBNDB_Query {
+class Lib_Dev_ISBNdb_Query {
 	/**
 	 * URL to access API
 	 */
@@ -56,7 +56,7 @@ class Lib_Dev_ISBNDB_Query {
 	
 	/**
 	 * Makes the request on object initialisation
-	 * @param	string			$api_key	Valid API key to access the ISBNDB API
+	 * @param	string			$api_key	Valid API key to access the ISBNdb API
 	 * @param	string			$endpoint	The API endpoint being queried, e.g. 'books'
 	 * @param	Array|string	$args		API request argument(s)
 	 */
@@ -83,7 +83,7 @@ class Lib_Dev_ISBNDB_Query {
 	}
 	
 	/**
-	 * Checks whether the ISBNDB returned an error
+	 * Checks whether the ISBNdb returned an error
 	 * @return bool Whether an error occurred
 	 */
 	public function hasError() {
@@ -91,7 +91,7 @@ class Lib_Dev_ISBNDB_Query {
 	}
 	
 	/**
-	 * Returns error returned by ISBNDB, if one exists
+	 * Returns error returned by ISBNdb, if one exists
 	 * @return string|null	Error, if one occurred, or NULL
 	 */
 	public function getError() {

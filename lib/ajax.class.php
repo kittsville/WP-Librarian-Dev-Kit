@@ -334,7 +334,7 @@ class Lib_Dev_AJAX {
 				
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
-				$publisher_query = new Lib_Dev_ISBNDB_Query($_SESSION['api_key'], 'publisher', 'doubleday');
+				$publisher_query = new Lib_Dev_ISBNdb_Query($_SESSION['api_key'], 'publisher', 'doubleday');
 				
 				$this->checkIsbndbError($publisher_query);
 				
@@ -342,7 +342,7 @@ class Lib_Dev_AJAX {
 				$new_book_count			= 0;
 				
 				/**
-				 * Book_id is a unique slug used by ISBNDB, not WP-Librarian's item_id which is a unique integer
+				 * Book_id is a unique slug used by ISBNdb, not WP-Librarian's item_id which is a unique integer
 				 */
 				foreach ($publisher_query->response->data[0]->book_ids as $book_id) {
 					if ($new_book_count >= $_SESSION['item_count'])
@@ -395,8 +395,8 @@ class Lib_Dev_AJAX {
 					if ($book_id === null)
 						break;
 					
-					// Loads book title/authors/ISBN13 from ISBNDB API
-					$book_query = new Lib_Dev_ISBNDB_Query($_SESSION['api_key'], 'book', $book_id);
+					// Loads book title/authors/ISBN13 from ISBNdb API
+					$book_query = new Lib_Dev_ISBNdb_Query($_SESSION['api_key'], 'book', $book_id);
 					
 					if (!$book_query->hasError()) {
 						$book = $book_query->response->data[0];
@@ -438,10 +438,10 @@ class Lib_Dev_AJAX {
 						add_post_meta($item_id, 'wp_lib_item_loanable',	true);
 					} else {
 						if ($book_query->getError() === 'Unable to locate ' . $book_id) {
-							$this->addMessage("ISBNDB API couldn't locate '{$book_id}', skipping item");
+							$this->addMessage("ISBNdb API couldn't locate '{$book_id}', skipping item");
 							continue;
 						} else {
-							$this->addMessage('Stopping owing to ISBNDB API error: ' . $book_query->getError());
+							$this->addMessage('Stopping owing to ISBNdb API error: ' . $book_query->getError());
 							$this->ajax->stopAjax(1006);
 						}
 					}
@@ -489,8 +489,8 @@ class Lib_Dev_AJAX {
 	}
 	
 	/**
-	 * Loads ISBNDB API v2 key and calls error if key doesn't exist
-	 * @return string ISBNDB API v2 key
+	 * Loads ISBNdb API v2 key and calls error if key doesn't exist
+	 * @return string ISBNdb API v2 key
 	 */
 	private function getApiKey() {
 		$api_key = get_option('lib_dev_api_key', false)[0];
@@ -502,12 +502,12 @@ class Lib_Dev_AJAX {
 	}
 	
 	/**
-	 * Closes the Dashboard AJAX request if the ISBNDB API v2 returned an error
-	 * @param	Lib_Dev_ISBNDB_Query $query	ISBNDB Query being checked
+	 * Closes the Dashboard AJAX request if the ISBNdb API v2 returned an error
+	 * @param	Lib_Dev_ISBNdb_Query $query	ISBNdb Query being checked
 	 */
-	private function checkIsbndbError(Lib_Dev_ISBNDB_Query $query) {
+	private function checkIsbndbError(Lib_Dev_ISBNdb_Query $query) {
 		if ($query->hasError()) {
-			$this->addMessage('ISBNDB API Error: ' . $query->getError());
+			$this->addMessage('ISBNdb API Error: ' . $query->getError());
 			$this->ajax->stopAjax(1006);
 		}
 	}

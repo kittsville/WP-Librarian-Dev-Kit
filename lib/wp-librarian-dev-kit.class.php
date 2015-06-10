@@ -89,8 +89,8 @@ class WP_Librarian_Dev_Kit {
 			'1001' => 'Unable to resume fixture generation',
 			'1002' => 'Unable to open members fixtures file',
 			'1003' => 'Unable to read members fixtures files',
-			'1005' => "Invalid ISBNDB API Key '\p'",
-			'1006' => 'ISBNDB API returned an error',
+			'1005' => "Invalid ISBNdb API Key '\p'",
+			'1006' => 'ISBNdb API returned an error',
 			'1007' => 'Attempted to resume session using invalid token'
 		);
 	}
@@ -136,7 +136,7 @@ class WP_Librarian_Dev_Kit {
 							$this->loadClass('isbndb-api');
 							
 							// Checks key is valid
-							$query = new Lib_Dev_ISBNDB_Query($api_key, 'book', 'raising_steam');
+							$query = new Lib_Dev_ISBNdb_Query($api_key, 'book', 'raising_steam');
 							
 							if ($query->hasError())
 								return array('');
