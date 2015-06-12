@@ -26,4 +26,6 @@
 
 require_once (dirname( __FILE__ ) . '/lib/wp-librarian-dev-kit.class.php');
 
-new WP_Librarian_Dev_Kit;
+$wp_librarian_dev_kit = new WP_Librarian_Dev_Kit;
+
+register_activation_hook(__FILE__, array($wp_librarian_dev_kit, 'runOnActivation'));

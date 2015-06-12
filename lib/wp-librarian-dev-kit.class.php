@@ -179,6 +179,13 @@ class WP_Librarian_Dev_Kit {
 	}
 	
 	/**
+	 * Updates/sets plugin's current version in WP settings
+	 */
+	public function runOnActivation() {
+		update_option('lib_dev_version', $this->getPluginVersion());
+	}
+	
+	/**
 	 * Returns the current update channel, version, build and WP-Lib version compatibility of WP-Librarian Dev Kit
 	 * @return  array   Current plugin version
 	 */
