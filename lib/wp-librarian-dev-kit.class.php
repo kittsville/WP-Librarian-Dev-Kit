@@ -46,6 +46,8 @@ class WP_Librarian_Dev_Kit {
 		add_filter('wp_lib_plugin_settings',                array($this,    'addSettings'));
 		add_filter('wp_lib_settings_tabs',                  array($this,    'addSettingsTab'),          10, 1);
 		
+		add_action('wp_lib_display_plugin_version',			array($this,	'displayDevKitVersion'));
+		
 		add_action('wp_lib_register_settings',              array($this,    'registerSettingsSection'));
 		
 		add_action('wp_lib_settings_page',                  array($this,    'enqueueSettingsScripts'),  10, 1);
@@ -174,6 +176,13 @@ class WP_Librarian_Dev_Kit {
 				),
 			)
 		));
+	}
+	
+	/**
+	 * Renders Dev Kit version
+	 */
+	public function displayDevKitVersion() {
+		echo '<span id="lib-dev-version">DEV KIT ACTIVE</span>';
 	}
 	
 	/**
