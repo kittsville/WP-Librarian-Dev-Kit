@@ -197,4 +197,32 @@ class WP_Librarian_Dev_Kit {
 		if ($tab === 'dev-kit')
 			wp_enqueue_script('lib_dev_settings');
 	}
+	
+	/**
+	 * Marks all loans created from fixture items/member as fixtures
+	 * This ensures fixture loans are cleaned up if plugin tries to delete fixtures
+	 * @param   int         $loan_id    Post ID of new loan
+	 * @param   WP_Lib_Item $item       Item being borrowed
+	 * @param   int         $member_id  Post ID of member borrowing item
+	 */
+	public function markFixtureLoans($loan_id, WP_Lib_Item $item, $member_id) {
+		// If either item/member are fixtures
+		if (get_post_meta($item->ID, '_lib_dev_id', true) !== '' || get_post_meta($member_id, '_lib_dev_id', true) !== '' ) {
+			add_post_meta($loan_id, '_lib_dev_id', true);
+		}
+	}
+	
+	/**
+	 * Marks fines created from fixture loans as fixtures themselves
+	 * This ensures fixture loans are cleaned up if plugin tries to delete fixtures
+	 * @param   int         $fine_id    Post ID of new fine
+	 * @param   int         $item_id    Post ID of new item
+	 * @param   int         $member_id  Post ID of member borrowing item
+	 * @param   WP_Lib_Loan $loan       Loan of Item to Member
+	 */
+	public function markFixtureFines($fine_id, $item_id, $member_id, WP_Lib_Loan $loan) {
+		if (get_post_meta($loan->ID, '_lib_dev_id', true) !== '') {
+			add_post_meta($fine_id, '_lib_dev_id', true);
+		}
+	}
 }
