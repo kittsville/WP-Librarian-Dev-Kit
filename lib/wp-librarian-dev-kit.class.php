@@ -179,10 +179,25 @@ class WP_Librarian_Dev_Kit {
 	}
 	
 	/**
+	 * Returns the current update channel, version, build and WP-Lib version compatibility of WP-Librarian Dev Kit
+	 * @return  array   Current plugin version
+	 */
+	public function getPluginVersion() {
+		return array(
+			'channel'   	=> 'Alpha',
+			'version'   	=> '0.1',
+			'subversion'	=> '001',
+			'libBuild'		=> '0.3',	// Compatible WP-Librarian version
+		);
+	}
+	
+	/**
 	 * Renders Dev Kit version
 	 */
 	public function displayDevKitVersion() {
-		echo '<span id="lib-dev-version">DEV KIT ACTIVE</span>';
+		$plugin_version = $this->getPluginVersion();
+		
+		echo '<span id="lib-dev-version">DEV KIT ' . $plugin_version['channel'] . ' ' . $plugin_version['version'] . '</span>';
 	}
 	
 	/**
