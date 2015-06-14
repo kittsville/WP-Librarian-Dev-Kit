@@ -153,7 +153,7 @@ class WP_Librarian_Dev_Kit {
 							'name'          => 'ISBNdb API Key',
 							'field_type'    => 'textInput',
 							'args'          => array(
-								'alt'       => 'A valid API key for the <a href="http://isbndb.com/api/v2/docs">ISBNdb API V2</a>'
+								'alt'       => "A valid API key for the <a href='http://isbndb.com/api/v2/docs'>ISBNdb API V2</a> (they're free!)"
 							)
 						)
 					)
