@@ -60,7 +60,7 @@ class WP_Librarian_Dev_Kit {
 	
 	/**
 	 * Loads library class from /lib directory
-	 * @param   string  $helper Name of library to be loaded, excluding .class.php
+	 * @param   string  $library Name of library to be loaded, excluding .class.php
 	 */
 	public function loadClass($library) {
 		require_once($this->plugin_path . '/lib/' . $library . '.class.php');
