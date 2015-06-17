@@ -19,6 +19,12 @@ class WP_Librarian_Dev_Kit {
 	public $plugin_url;
 	
 	/**
+	 * Copy of WP-Librarian's core class
+	 * @var WP_Librarian
+	 */
+	public $wp_librarian;
+	
+	/**
 	 * Sets up plugin
 	 * @todo Consider merging some required files into this class
 	 */
@@ -41,6 +47,8 @@ class WP_Librarian_Dev_Kit {
 	 * Registers WP-Librarian hooks
 	 */
 	private function registerHooks(){
+		add_filter('wp_lib_loaded',							array($this,	'addLibraryClass'),			10, 1);
+		
 		add_filter('wp_lib_error_codes',                    array($this,    'registerErrors'));
 		
 		add_filter('wp_lib_plugin_settings',                array($this,    'addSettings'));
@@ -82,6 +90,14 @@ class WP_Librarian_Dev_Kit {
 	 */
 	public function getScriptUrl($name) {
 		return $this->plugin_url . '/scripts/' . $name . '.js';
+	}
+	
+	/**
+	 * Adds instance of WP-Librarian's core class to Dev Kit's core classes properties
+	 * @param	WP_Librarian	$wp_librarian	Instance of core plugin class
+	 */
+	public function addLibraryClass(WP_Librarian $wp_librarian) {
+		$this->wp_librarian = $wp_librarian;
 	}
 	
 	/**
