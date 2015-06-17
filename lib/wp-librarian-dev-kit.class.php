@@ -236,7 +236,7 @@ class WP_Librarian_Dev_Kit {
 				
 				// Only minifies an asset if it has been modified since the last minification or doesn't exist
 				if (!file_exists($minified_filename) || filemtime($style_pathname) > filemtime($minified_filename)) {
-					file_put_contents($minified_filename, CssMin::minify(file_get_contents($style_pathname)), LOCK_EX);
+					file_put_contents($minified_filename, CssMin::minify(file_get_contents($style_pathname), array('RemoveComments' => false)), LOCK_EX);
 				}
 			}
 		}
