@@ -229,7 +229,7 @@ class Lib_Dev_AJAX {
 				
 				$this->addMessage("Creating {$_SESSION['member_count']} member(s)...");
 				
-				$member_json = @file_get_contents($this->wp_librarian_dev_kit->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
+				$member_json = @file_get_contents($this->wp_librarian_dev_kit->plugin_path . '/' . WP_Librarian_Dev_Kit::FIXTURE_DIR . '/members.json', 'r') or $ajax_api->stopAjax(1002);
 				
 				$members = json_decode($member_json);
 				

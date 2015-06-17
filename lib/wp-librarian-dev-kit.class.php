@@ -7,6 +7,16 @@ defined('ABSPATH') OR die('No');
  */
 class WP_Librarian_Dev_Kit {
 	/**
+	 * Paths to plugin's subdirectories
+	 * Use these rather than hard-coding subdirectory names
+	 */
+	const SCRIPT_DIR        = 'scripts';
+	const STYLE_DIR         = 'styles';
+	const CLASS_DIR         = 'lib';
+	const FIXTURE_DIR       = 'fixtures';
+	const VENDOR_DIR        = 'vendor';
+	
+	/**
 	 * Path to plugin folder, without trailing slash
 	 * @var string
 	 */
@@ -74,7 +84,7 @@ class WP_Librarian_Dev_Kit {
 	 * @param   string  $library Name of library to be loaded, excluding .class.php
 	 */
 	public function loadClass($library) {
-		require_once($this->plugin_path . '/lib/' . $library . '.class.php');
+		require_once($this->plugin_path . '/' . self::CLASS_DIR . '/' . $library . '.class.php');
 	}
 	
 	/**
@@ -82,7 +92,7 @@ class WP_Librarian_Dev_Kit {
 	 * @param   string  $library    Name of vendor library
 	 */
 	public function loadVendor($library) {
-		require_once($this->plugin_path . '/vendor/' . $library . '.php');
+		require_once($this->plugin_path . '/' . self::VENDOR_DIR . '/' . $library . '.php');
 	}
 	
 	/**
@@ -91,7 +101,7 @@ class WP_Librarian_Dev_Kit {
 	 * @return  string          Full file URL e.g. '.../styles/front-end-core.css'
 	 */
 	public function getStyleUrl($name) {
-		return $this->plugin_url . '/styles/' . $name . '.css';
+		return $this->plugin_url . '/' . self::STYLE_DIR . '/' . $name . '.css';
 	}
 	
 	/**
@@ -100,7 +110,7 @@ class WP_Librarian_Dev_Kit {
 	 * @return  string          Full file URL e.g. '.../scripts/admin.js'
 	 */
 	public function getScriptUrl($name) {
-		return $this->plugin_url . '/scripts/' . $name . '.js';
+		return $this->plugin_url . '/' . self::SCRIPT_DIR . '/' . $name . '.js';
 	}
 	
 	/**
