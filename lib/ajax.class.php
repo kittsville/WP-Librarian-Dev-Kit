@@ -367,7 +367,7 @@ class Lib_Dev_AJAX {
 				++$_SESSION['stage'];
 			break;
 			
-			// Prepares to get fixture data
+			// Prepares to get fixture items
 			case 4:
 				$_SESSION['item_descriptions'] = explode("\n\n", file_get_contents('http://loripsum.net/api/' . $_SESSION['item_count'] . '/plaintext'));
 				
@@ -384,7 +384,7 @@ class Lib_Dev_AJAX {
 				++$_SESSION['stage'];
 			break;
 			
-			// Creates fixture data in batches of 10 items per iteration
+			// Creates fixture items in batches of 10 per iteration
 			case 5:
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
