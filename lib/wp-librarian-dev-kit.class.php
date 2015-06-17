@@ -62,6 +62,9 @@ class WP_Librarian_Dev_Kit {
 		
 		add_action('admin_enqueue_scripts',                 array($this,    'registerAdminScripts'),    10, 1);
 		
+		add_action('wp_lib_admin_enqueue_scripts',			array($this,	'minifyScripts'),			10);
+		add_action('wp_lib_enqueue_scripts',				array($this,	'minifyScripts'),			10);
+		
 		add_action('wp_lib_loan_created',                   array($this,    'markFixtureLoans'),        10, 3);
 		add_action('wp_lib_fine_created',                   array($this,    'markFixtureFines'),        10, 4);
 	}
@@ -200,6 +203,43 @@ class WP_Librarian_Dev_Kit {
 				),
 			)
 		));
+	}
+	
+	/**
+	 * Creates minified WP-Librarian scripts/styles for /data directory
+	 */
+	public function minifyScripts() {
+		$this->loadVendor('CssMin');
+		$this->loadVendor('JShrink');
+		
+		$script_directory	= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::SCRIPT_DIR);
+		$style_directory	= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::STYLE_DIR);
+		
+		$minified_directory	= $this->wp_librarian->plugin_path . '\\' . WP_Librarian::MINIFIED_DIR . '\\';
+		
+		foreach ($script_directory as $script_info) {
+			if ($script_info->isFile() && $script_info->getExtension() === 'js') {
+				$script_pathname	= $script_info->getPathname();
+				$minified_filename	= $minified_directory . $script_info->getBasename('.js') . '.min.js'; // derp.js -> derp.min.js
+				
+				// Only minifies an asset if it has been modified since the last minification or doesn't exist
+				if (!file_exists($minified_filename) || filemtime($script_pathname) > filemtime($minified_filename)) {
+					file_put_contents($minified_filename, \JShrink\Minifier::minify(file_get_contents($script_pathname)), LOCK_EX);
+				}
+			}
+		}
+		
+		foreach ($style_directory as $style_info) {
+			if ($style_info->isFile() && $style_info->getExtension() === 'css') {
+				$style_pathname	= $style_info->getPathname();
+				$minified_filename	= $minified_directory . $style_info->getBasename('.css') . '.min.css'; // derp.css -> derp.min.css
+				
+				// Only minifies an asset if it has been modified since the last minification or doesn't exist
+				if (!file_exists($minified_filename) || filemtime($style_pathname) > filemtime($minified_filename)) {
+					file_put_contents($minified_filename, CssMin::minify(file_get_contents($style_pathname)), LOCK_EX);
+				}
+			}
+		}
 	}
 	
 	/**
