@@ -424,13 +424,16 @@ class Lib_Dev_AJAX {
 							'post_status'	=> 'publish',
 							'tax_input'		=> array(
 								'wp_lib_author'		=> $authors,
-								'wp_lib_media_type'	=> 'book'
 							)
 						));
 						
 						if (is_wp_error($item_id)) {
 							$this->addMessage("Error encountered creating item {$book->title}");
 							continue;
+						}
+						
+						if (is_wp_error(wp_set_object_terms($item_id, 'book', 'wp_lib_media_type'))) {
+							$this->addMessage("Error encountered setting media type of item {$book->title}");
 						}
 						
 						add_post_meta($item_id, '_lib_dev_id',			$book->book_id);
