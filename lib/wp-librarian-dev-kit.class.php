@@ -47,14 +47,14 @@ class WP_Librarian_Dev_Kit {
 	 * Registers WP-Librarian hooks
 	 */
 	private function registerHooks(){
-		add_filter('wp_lib_loaded',							array($this,	'addLibraryClass'),			10, 1);
+		add_filter('wp_lib_loaded',                         array($this,    'addLibraryClass'),         10, 1);
 		
 		add_filter('wp_lib_error_codes',                    array($this,    'registerErrors'));
 		
 		add_filter('wp_lib_plugin_settings',                array($this,    'addSettings'));
 		add_filter('wp_lib_settings_tabs',                  array($this,    'addSettingsTab'),          10, 1);
 		
-		add_action('wp_lib_display_plugin_version',			array($this,	'displayDevKitVersion'));
+		add_action('wp_lib_display_plugin_version',         array($this,    'displayDevKitVersion'));
 		
 		add_action('wp_lib_register_settings',              array($this,    'registerSettingsSection'));
 		
@@ -62,8 +62,8 @@ class WP_Librarian_Dev_Kit {
 		
 		add_action('admin_enqueue_scripts',                 array($this,    'registerAdminScripts'),    10, 1);
 		
-		add_action('wp_lib_admin_enqueue_scripts',			array($this,	'minifyScripts'),			10);
-		add_action('wp_lib_enqueue_scripts',				array($this,	'minifyScripts'),			10);
+		add_action('wp_lib_admin_enqueue_scripts',          array($this,    'minifyScripts'),           10);
+		add_action('wp_lib_enqueue_scripts',                array($this,    'minifyScripts'),           10);
 		
 		add_action('wp_lib_loan_created',                   array($this,    'markFixtureLoans'),        10, 3);
 		add_action('wp_lib_fine_created',                   array($this,    'markFixtureFines'),        10, 4);
@@ -79,7 +79,7 @@ class WP_Librarian_Dev_Kit {
 	
 	/**
 	 * Loads vendor code
-	 * @param	string	$library	Name of vendor library
+	 * @param   string  $library    Name of vendor library
 	 */
 	public function loadVendor($library) {
 		require_once($this->plugin_path . '/vendor/' . $library . '.php');
@@ -105,7 +105,7 @@ class WP_Librarian_Dev_Kit {
 	
 	/**
 	 * Adds instance of WP-Librarian's core class to Dev Kit's core classes properties
-	 * @param	WP_Librarian	$wp_librarian	Instance of core plugin class
+	 * @param   WP_Librarian    $wp_librarian   Instance of core plugin class
 	 */
 	public function addLibraryClass(WP_Librarian $wp_librarian) {
 		$this->wp_librarian = $wp_librarian;
@@ -212,15 +212,15 @@ class WP_Librarian_Dev_Kit {
 		$this->loadVendor('CssMin');
 		$this->loadVendor('JShrink');
 		
-		$script_directory	= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::SCRIPT_DIR);
-		$style_directory	= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::STYLE_DIR);
+		$script_directory   = new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::SCRIPT_DIR);
+		$style_directory    = new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::STYLE_DIR);
 		
-		$minified_directory	= $this->wp_librarian->plugin_path . '\\' . WP_Librarian::MINIFIED_DIR . '\\';
+		$minified_directory = $this->wp_librarian->plugin_path . '\\' . WP_Librarian::MINIFIED_DIR . '\\';
 		
 		foreach ($script_directory as $script_info) {
 			if ($script_info->isFile() && $script_info->getExtension() === 'js') {
-				$script_pathname	= $script_info->getPathname();
-				$minified_filename	= $minified_directory . $script_info->getBasename('.js') . '.min.js'; // derp.js -> derp.min.js
+				$script_pathname    = $script_info->getPathname();
+				$minified_filename  = $minified_directory . $script_info->getBasename('.js') . '.min.js'; // derp.js -> derp.min.js
 				
 				// Only minifies an asset if it has been modified since the last minification or doesn't exist
 				if (!file_exists($minified_filename) || filemtime($script_pathname) > filemtime($minified_filename)) {
@@ -231,8 +231,8 @@ class WP_Librarian_Dev_Kit {
 		
 		foreach ($style_directory as $style_info) {
 			if ($style_info->isFile() && $style_info->getExtension() === 'css') {
-				$style_pathname	= $style_info->getPathname();
-				$minified_filename	= $minified_directory . $style_info->getBasename('.css') . '.min.css'; // derp.css -> derp.min.css
+				$style_pathname = $style_info->getPathname();
+				$minified_filename  = $minified_directory . $style_info->getBasename('.css') . '.min.css'; // derp.css -> derp.min.css
 				
 				// Only minifies an asset if it has been modified since the last minification or doesn't exist
 				if (!file_exists($minified_filename) || filemtime($style_pathname) > filemtime($minified_filename)) {
@@ -255,10 +255,10 @@ class WP_Librarian_Dev_Kit {
 	 */
 	public function getPluginVersion() {
 		return array(
-			'channel'   	=> 'Alpha',
-			'version'   	=> '0.1',
-			'subversion'	=> '001',
-			'libBuild'		=> '0.3',	// Compatible WP-Librarian version
+			'channel'       => 'Alpha',
+			'version'       => '0.1',
+			'subversion'    => '001',
+			'libBuild'      => '0.3',   // Compatible WP-Librarian version
 		);
 	}
 	
