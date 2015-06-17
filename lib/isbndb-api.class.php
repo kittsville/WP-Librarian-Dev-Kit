@@ -3,37 +3,6 @@
 defined( 'ABSPATH' ) OR die('No');
 
 /**
- * Handles retrieving data and managing access limitations to the ISBNdb API V2
- * @link http://isbndb.com/api/v2/docs
- */
-class Lib_Dev_ISBNdb {
-	/**
-	 * The key to grant access to the API
-	 */
-	private $apiKey;
-	
-	/**
-	 * Sets API key on object construction
-	 * @param string $api_key Valid ISBNdb API v2 key
-	 */
-	public function __construct($api_key) {
-		$this->apiKey = $api_key;
-	}
-	
-	/**
-	 * Checks if current API key property or given API key is valid
-	 * @param	string $api_key API key to check validity
-	 * @return	bool			Whether the key is valid
-	 */
-	public static function validKey($api_key) {
-		$request = new Lib_Dev_ISBNdb_Query($api_key, 'book', 'raising_steam');
-		
-		// If request doesn't have an error then the API key is valid
-		return !$request->hasError();
-	}
-}
-
-/**
  * A single request made to the ISBNdb API V2
  * @link http://isbndb.com/api/v2/docs
  */
