@@ -75,6 +75,14 @@ class WP_Librarian_Dev_Kit {
 	}
 	
 	/**
+	 * Loads vendor code
+	 * @param	string	$library	Name of vendor library
+	 */
+	public function loadVendor($library) {
+		require_once($this->plugin_path . '/vendor/' . $library . '.php');
+	}
+	
+	/**
 	 * Given the name of a CSS file, returns its full URL
 	 * @param   string  $name   File name e.g. 'front-end-core'
 	 * @return  string          Full file URL e.g. '.../styles/front-end-core.css'
