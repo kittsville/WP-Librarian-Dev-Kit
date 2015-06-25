@@ -222,20 +222,20 @@ class WP_Librarian_Dev_Kit {
 		$this->loadVendor('CssMin');
 		$this->loadVendor('JShrink');
 		
-		$minified_directory_path	= $this->wp_librarian->plugin_path . '\\' . WP_Librarian::MINIFIED_DIR . '\\';
+		$minified_directory_path    = $this->wp_librarian->plugin_path . '\\' . WP_Librarian::MINIFIED_DIR . '\\';
 		
-		$minified_directory			= new DirectoryIterator($minified_directory_path);
-		$script_directory   		= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::SCRIPT_DIR);
-		$style_directory    		= new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::STYLE_DIR);
+		$minified_directory         = new DirectoryIterator($minified_directory_path);
+		$script_directory           = new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::SCRIPT_DIR);
+		$style_directory            = new DirectoryIterator($this->wp_librarian->plugin_path . '\\' . WP_Librarian::STYLE_DIR);
 		
-		$minified_files				= [];
+		$minified_files             = [];
 		
 		foreach ($script_directory as $script_info) {
 			if ($script_info->isFile() && $script_info->getExtension() === 'js') {
-				$script_pathname    	= $script_info->getPathname();
-				$minified_filename  	= $minified_directory_path . $script_info->getBasename('.js') . '.min.js'; // derp.js -> derp.min.js
+				$script_pathname        = $script_info->getPathname();
+				$minified_filename      = $minified_directory_path . $script_info->getBasename('.js') . '.min.js'; // derp.js -> derp.min.js
 				
-				$minified_files[]	= $minified_filename;
+				$minified_files[]   = $minified_filename;
 				
 				// Only minifies an asset if it has been modified since the last minification or doesn't exist
 				if (!file_exists($minified_filename) || filemtime($script_pathname) > filemtime($minified_filename)) {
@@ -246,10 +246,10 @@ class WP_Librarian_Dev_Kit {
 		
 		foreach ($style_directory as $style_info) {
 			if ($style_info->isFile() && $style_info->getExtension() === 'css') {
-				$style_pathname			= $style_info->getPathname();
-				$minified_filename		= $minified_directory_path . $style_info->getBasename('.css') . '.min.css'; // derp.css -> derp.min.css
+				$style_pathname         = $style_info->getPathname();
+				$minified_filename      = $minified_directory_path . $style_info->getBasename('.css') . '.min.css'; // derp.css -> derp.min.css
 				
-				$minified_files[]	= $minified_filename;
+				$minified_files[]   = $minified_filename;
 				
 				// Only minifies an asset if it has been modified since the last minification or doesn't exist
 				if (!file_exists($minified_filename) || filemtime($style_pathname) > filemtime($minified_filename)) {
