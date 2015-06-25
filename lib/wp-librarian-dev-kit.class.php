@@ -72,8 +72,8 @@ class WP_Librarian_Dev_Kit {
 		
 		add_action('admin_enqueue_scripts',                 array($this,    'registerAdminScripts'),    10, 1);
 		
-		add_action('wp_lib_admin_enqueue_scripts',          array($this,    'minifyScripts'),           10);
-		add_action('wp_lib_enqueue_scripts',                array($this,    'minifyScripts'),           10);
+		add_action('wp_lib_admin_enqueue_scripts',          array($this,    'minifyAssets'),            10);
+		add_action('wp_lib_enqueue_scripts',                array($this,    'minifyAssets'),            10);
 		
 		add_action('wp_lib_loan_created',                   array($this,    'markFixtureLoans'),        10, 3);
 		add_action('wp_lib_fine_created',                   array($this,    'markFixtureFines'),        10, 4);
@@ -218,7 +218,7 @@ class WP_Librarian_Dev_Kit {
 	/**
 	 * Creates minified WP-Librarian scripts/styles for /data directory
 	 */
-	public function minifyScripts() {
+	public function minifyAssets() {
 		$this->loadVendor('CssMin');
 		$this->loadVendor('JShrink');
 		
