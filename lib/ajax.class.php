@@ -472,7 +472,8 @@ class Lib_Dev_AJAX {
 				session_destroy();
 			break;
 		}
-		die();
+		
+		$this->sendData();
 	}
 	
 	/**
@@ -612,17 +613,19 @@ class Lib_Dev_AJAX {
 				session_destroy();
 			break;
 		}
-		die();
+		
+		$this->sendData();
 	}
 	
 	/**
 	 * Empties message buffer and sends code for client to proceed to next stage
 	 */
-	public function __destruct() {
-		if (isset($this->ajax)) {
-			$this->ajax->addContent($_SESSION['stage_code']);
-			$this->ajax->addContent($this->message_buffer);
-			session_write_close();
-		}
+	private function sendData() {
+		$this->ajax->addContent($_SESSION['stage_code']);
+		$this->ajax->addContent($this->message_buffer);
+		
+		session_write_close();
+		
+		die();
 	}
 }
