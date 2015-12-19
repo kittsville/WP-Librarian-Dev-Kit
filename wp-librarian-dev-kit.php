@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WP-Librarian Development Kit
- * Description: Generates items/members/loans/fines to test WP-Librarian
+ * Description: Generates item/member/loan/fine fixtures for testing as well as minifying WP-Librarian's script/style assets
  * Version: 0.0.1
  * For WP-Librarian: Alpha v3 (Badger Claw)
  * Author: Kit Maywood
@@ -26,4 +26,6 @@
 
 require_once (dirname( __FILE__ ) . '/lib/wp-librarian-dev-kit.class.php');
 
-new WP_Librarian_Dev_Kit;
+$wp_librarian_dev_kit = new WP_Librarian_Dev_Kit;
+
+register_activation_hook(__FILE__, array($wp_librarian_dev_kit, 'runOnActivation'));

@@ -5,7 +5,7 @@ defined('ABSPATH') OR die('No');
 /**
  * Handles Library Dashboard AJAX pages and page elements
  */
-class LIB_Dev_AJAX {
+class Lib_Dev_AJAX {
 	/**
 	 * Instance of core plugin class
 	 */
@@ -174,6 +174,16 @@ class LIB_Dev_AJAX {
 		switch ($_SESSION['stage']) {
 			// Loads existing fixtures in library
 			case 0:
+				// Skips everything if there's nothing to do
+				if ($_SESSION['member_count'] === 0 && $_SESSION['item_count'] === 0) {
+					$this->addMessage('Created 0 items and 0 members');
+					$this->addMessage('You sure are pushing this Development Kit to its limits');
+					
+					$_SESSION['stage_code'] = false;
+					
+					break;
+				}
+				
 				$wp_query = lib_dev_fixtures();
 			
 				// Creates an array of all existing fixtures in the library
@@ -219,7 +229,7 @@ class LIB_Dev_AJAX {
 				
 				$this->addMessage("Creating {$_SESSION['member_count']} member(s)...");
 				
-				$member_json = @file_get_contents($this->wp_librarian_dev_kit->plugin_path . '/fixtures/members.json', 'r') or $ajax_api->stopAjax(1002);
+				$member_json = @file_get_contents($this->wp_librarian_dev_kit->plugin_path . '/' . WP_Librarian_Dev_Kit::FIXTURE_DIR . '/members.json', 'r') or $ajax_api->stopAjax(1002);
 				
 				$members = json_decode($member_json);
 				
@@ -254,6 +264,8 @@ class LIB_Dev_AJAX {
 					$this->addMessage("Fell short of requested member count by {$shortfall} member(s). Mostly likely caused by insufficient fixtures in the JSON file used.");
 				}
 				
+				$_SESSION['meta_use_threshold'] = get_option('lib_dev_meta_threshold', array(0))[0];
+				
 				// Next request will move on to the next stage
 				++$_SESSION['stage'];
 			break;
@@ -277,10 +289,21 @@ class LIB_Dev_AJAX {
 						continue;
 					}
 					
-					add_post_meta($member_id, '_lib_dev_id',			$member->ID);
-					add_post_meta($member_id, 'wp_lib_member_phone',	$member->Phone);
-					add_post_meta($member_id, 'wp_lib_member_mobile',	$member->Mobile);
-					add_post_meta($member_id, 'wp_lib_member_email',	$member->Email);
+					add_post_meta($member_id, '_lib_dev_id', $member->ID);
+					
+					$post_meta = array(
+						'wp_lib_member_phone'	=> $member->Phone,
+						'wp_lib_member_mobile'	=> $member->Mobile,
+						'wp_lib_member_email'	=> $member->Email,
+					);
+					
+					// Makes a certain percentage of member meta blank, for checking how WP-Librarian handles empty (optional) values
+					foreach ($post_meta as $meta_key => $meta_value) {
+						if (rand(0, 100) >= $_SESSION['meta_use_threshold'])
+							add_post_meta($member_id, $meta_key, $meta_value);
+						else
+							add_post_meta($member_id, $meta_key, '');
+					}
 				}
 				
 				$remaining = count($_SESSION['new_members']);
@@ -311,7 +334,7 @@ class LIB_Dev_AJAX {
 				
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
-				$publisher_query = new LIB_Dev_ISBNDB_Query($_SESSION['api_key'], 'publisher', 'doubleday');
+				$publisher_query = new Lib_Dev_ISBNdb_Query($_SESSION['api_key'], 'publisher', 'doubleday');
 				
 				$this->checkIsbndbError($publisher_query);
 				
@@ -319,7 +342,7 @@ class LIB_Dev_AJAX {
 				$new_book_count			= 0;
 				
 				/**
-				 * Book_id is a unique slug used by ISBNDB, not WP-Librarian's item_id which is a unique integer
+				 * Book_id is a unique slug used by ISBNdb, not WP-Librarian's item_id which is a unique integer
 				 */
 				foreach ($publisher_query->response->data[0]->book_ids as $book_id) {
 					if ($new_book_count >= $_SESSION['item_count'])
@@ -344,7 +367,7 @@ class LIB_Dev_AJAX {
 				++$_SESSION['stage'];
 			break;
 			
-			// Prepares to get fixture data
+			// Prepares to get fixture items
 			case 4:
 				$_SESSION['item_descriptions'] = explode("\n\n", file_get_contents('http://loripsum.net/api/' . $_SESSION['item_count'] . '/plaintext'));
 				
@@ -361,7 +384,7 @@ class LIB_Dev_AJAX {
 				++$_SESSION['stage'];
 			break;
 			
-			// Creates fixture data in batches of 10 items per iteration
+			// Creates fixture items in batches of 10 per iteration
 			case 5:
 				$this->wp_librarian_dev_kit->loadClass('isbndb-api');
 				
@@ -372,8 +395,8 @@ class LIB_Dev_AJAX {
 					if ($book_id === null)
 						break;
 					
-					// Loads book title/authors/ISBN13 from ISBNDB API
-					$book_query = new LIB_Dev_ISBNDB_Query($_SESSION['api_key'], 'book', $book_id);
+					// Loads book title/authors/ISBN13 from ISBNdb API
+					$book_query = new Lib_Dev_ISBNdb_Query($_SESSION['api_key'], 'book', $book_id);
 					
 					if (!$book_query->hasError()) {
 						$book = $book_query->response->data[0];
@@ -401,7 +424,6 @@ class LIB_Dev_AJAX {
 							'post_status'	=> 'publish',
 							'tax_input'		=> array(
 								'wp_lib_author'		=> $authors,
-								'wp_lib_media_type'	=> 'book'
 							)
 						));
 						
@@ -410,15 +432,19 @@ class LIB_Dev_AJAX {
 							continue;
 						}
 						
+						if (is_wp_error(wp_set_object_terms($item_id, 'book', 'wp_lib_media_type'))) {
+							$this->addMessage("Error encountered setting media type of item {$book->title}");
+						}
+						
 						add_post_meta($item_id, '_lib_dev_id',			$book->book_id);
 						add_post_meta($item_id, 'wp_lib_item_isbn',		$book->isbn13);
 						add_post_meta($item_id, 'wp_lib_item_loanable',	true);
 					} else {
 						if ($book_query->getError() === 'Unable to locate ' . $book_id) {
-							$this->addMessage("ISBNDB API couldn't locate '{$book_id}', skipping item");
+							$this->addMessage("ISBNdb API couldn't locate '{$book_id}', skipping item");
 							continue;
 						} else {
-							$this->addMessage('Stopping owing to ISBNDB API error: ' . $book_query->getError());
+							$this->addMessage('Stopping owing to ISBNdb API error: ' . $book_query->getError());
 							$this->ajax->stopAjax(1006);
 						}
 					}
@@ -446,7 +472,8 @@ class LIB_Dev_AJAX {
 				session_destroy();
 			break;
 		}
-		die();
+		
+		$this->sendData();
 	}
 	
 	/**
@@ -466,8 +493,8 @@ class LIB_Dev_AJAX {
 	}
 	
 	/**
-	 * Loads ISBNDB API v2 key and calls error if key doesn't exist
-	 * @return string ISBNDB API v2 key
+	 * Loads ISBNdb API v2 key and calls error if key doesn't exist
+	 * @return string ISBNdb API v2 key
 	 */
 	private function getApiKey() {
 		$api_key = get_option('lib_dev_api_key', false)[0];
@@ -479,12 +506,12 @@ class LIB_Dev_AJAX {
 	}
 	
 	/**
-	 * Closes the Dashboard AJAX request if the ISBNDB API v2 returned an error
-	 * @param	LIB_Dev_ISBNDB_Query $query	ISBNDB Query being checked
+	 * Closes the Dashboard AJAX request if the ISBNdb API v2 returned an error
+	 * @param	Lib_Dev_ISBNdb_Query $query	ISBNdb Query being checked
 	 */
-	private function checkIsbndbError(LIB_Dev_ISBNDB_Query $query) {
+	private function checkIsbndbError(Lib_Dev_ISBNdb_Query $query) {
 		if ($query->hasError()) {
-			$this->addMessage('ISBNDB API Error: ' . $query->getError());
+			$this->addMessage('ISBNdb API Error: ' . $query->getError());
 			$this->ajax->stopAjax(1006);
 		}
 	}
@@ -586,17 +613,19 @@ class LIB_Dev_AJAX {
 				session_destroy();
 			break;
 		}
-		die();
+		
+		$this->sendData();
 	}
 	
 	/**
 	 * Empties message buffer and sends code for client to proceed to next stage
 	 */
-	public function __destruct() {
-		if (isset($this->ajax)) {
-			$this->ajax->addContent($_SESSION['stage_code']);
-			$this->ajax->addContent($this->message_buffer);
-			session_write_close();
-		}
+	private function sendData() {
+		$this->ajax->addContent($_SESSION['stage_code']);
+		$this->ajax->addContent($this->message_buffer);
+		
+		session_write_close();
+		
+		die();
 	}
 }
